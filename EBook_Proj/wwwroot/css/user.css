@@ -1,0 +1,37 @@
+﻿/* user.css */
+.user-info {
+    position: fixed;
+    right: 30px;
+    top: 100px; /* Adjusted for navbar */
+    width: 300px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.user-info p {
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.user-info p:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateX(10px);
+}
+
+.container {
+    padding: 2rem;
+}
+
+.main-content {
+    margin-right: 350px; /* Space for sidebar */
+    padding: 20px;
+}

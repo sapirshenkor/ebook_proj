@@ -6,21 +6,17 @@ namespace EBook_Proj.Controllers;
 public class UserController : Controller
 {
     // GET
-    public ActionResult Index()
+    public ActionResult UserPage()
     {
-        return View();
-    }
-
-    public ActionResult UserPage(UserModel user)
-    {
-        
-      //check validation
-      if (ModelState.IsValid)
-      {
-          return View("UserPageView",user);
-      }
-      
-      return View("CreateUserView", user);
+        var user = new UserModel() {Name = "Liran", LastName = "Hozias", Email = "hliran2@gmail.com", Username = "hliran2"};
+        return View(user);
+      // //check validation
+      // if (ModelState.IsValid)
+      // {
+      //     return View("UserPageView",user);
+      // }
+      //
+      // return View("CreateUserView", user);
     }
 
     public ActionResult CreateUser()
