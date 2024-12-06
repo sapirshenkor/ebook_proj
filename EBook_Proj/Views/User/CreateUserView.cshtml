@@ -1,0 +1,14 @@
+﻿@model EBook_Proj.Models.UserModel
+
+<body>
+<div>
+    <form action="UserPage" method="post">
+        First Name: <input value="@Model.Name" name="Name" type="text"/> @Html.ValidationMessageFor(x=>x.Name) <br/>
+        Last Name: <input value="@Model.LastName" name="Lastname" type="text"/> @Html.ValidationMessageFor(x=>x.LastName)<br/>
+        User Name: <input value="@Model.Username" name="Username" type="text"/> @Html.ValidationMessageFor(x=>x.Username)<br/>
+        email: <input value="@Model.Email" name="Email" type="text"/> @Html.ValidationMessageFor(x=>x.Email)<br/>
+        <input type="submit" value="Add User"/>
+    </form>
+    
+</div>
+</body>
