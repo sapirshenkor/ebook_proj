@@ -1,8 +1,80 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@await Html.PartialAsync("_SearchPartial")
+
+<!-- Featured Books -->
+<section class="container py-5">
+    <h2 class="section-title">Featured Books</h2>
+    <div class="row">
+        @for (int i = 0; i < 4; i++)
+        {
+            <div class="col-md-3">
+                <div class="card book-card">
+                    <img src="https://via.placeholder.com/200x300" class="card-img-top book-image" alt="Book Cover">
+                    <div class="card-body book-info">
+                        <h5 class="book-title">Book Title</h5>
+                        <p class="book-author">Author Name</p>
+                        <p class="book-price">$12.99</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Popular Books -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="section-title">Most Popular</h2>
+        <div class="row">
+            @for (int i = 0; i < 2; i++)
+            {
+                <div class="col-md-6">
+                    <div class="card book-card">
+                        <img src="https://via.placeholder.com/200x300" class="card-img-top book-image" alt="Book Cover">
+                        <div class="card-body book-info">
+                            <h5 class="book-title">Popular Book Title</h5>
+                            <p class="book-author">Author Name</p>
+                            <p class="book-price">$15.99</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Feedback Section -->
+<section class="container py-5">
+    <h2 class="section-title">What Our Readers Say</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="feedback-card">
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="feedback-text">"Amazing selection of books! The interface is so easy to use and the delivery was super quick."</p>
+                <p class="feedback-author">- Sapir Shenkor</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feedback-card">
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="feedback-text">"The best digital library I've ever used. Great prices and excellent customer service!"</p>
+                <p class="feedback-author">- Liran Hozias</p>
+            </div>
+        </div>
+    </div>
+</section>
