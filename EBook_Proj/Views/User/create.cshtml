@@ -1,0 +1,39 @@
+﻿@model UserModel
+<div class="register-box">
+    <h2>Create New Account</h2>
+        <div class="user-box">
+            <form asp-action="Create">
+                <div class="register">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="register">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+
+                <div class="register">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="register">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Choose a password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </div>
+            </form> 
+        </div>
+    </div>
+            
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
