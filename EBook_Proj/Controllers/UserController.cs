@@ -50,11 +50,20 @@ public class UserController : Controller
             if (user != null)
             {
                 HttpContext.Session.SetString("FirstName", user.FirstName);
+                HttpContext.Session.SetString("LastName", user.LastName);
                 HttpContext.Session.SetString("Email", user.Email);
-                return RedirectToAction("Index", "Home");
+                HttpContext.Session.SetString("CustomerID", user.CustomerID.ToString());
+                HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+
+                return RedirectToAction("UserPage", "User");
             }
             ModelState.AddModelError("", "Invalid email or password");
         }
+        return View();
+    }
+
+    public IActionResult UserPage()
+    {
         return View();
     }
     

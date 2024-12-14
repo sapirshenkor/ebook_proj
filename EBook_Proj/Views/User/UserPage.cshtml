@@ -1,0 +1,64 @@
+﻿<div class="container">
+    <h2 class="welcome-header">Welcome, @Context.Session.GetString("FirstName") @Context.Session.GetString("LastName")!</h2>
+
+    <div class="dashboard-container">
+        <!-- Books Sections (Left Side) -->
+        <div class="books-sections">
+            <!-- Purchased Books -->
+            <div class="books-section">
+                <h3 class="section-title">My Purchased Books</h3>
+                <div class="books-scroll">
+                    <div class="book-grid">
+                        @for (int i = 0; i < 8; i++)
+                        {
+                            <div class="book-card purchased-book">
+                                <img src="https://via.placeholder.com/200x300" class="book-image" alt="Book Cover">
+                                <div class="book-info">
+                                    <h5 class="book-title">Book Title</h5>
+                                    <p class="book-author">Author Name</p>
+                                    <div class="purchase-date">Purchased: 01/01/2024</div>
+                                    <a href="#" class="btn btn-primary btn-sm">Read Now</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Borrowed Books -->
+            <div class="books-section mt-4">
+                <h3 class="section-title">My Borrowed Books</h3>
+                <div class="books-scroll">
+                    <div class="book-grid">
+                        @for (int i = 0; i < 4; i++)
+                        {
+                            <div class="book-card borrowed-book">
+                                <img src="https://via.placeholder.com/200x300" class="book-image" alt="Book Cover">
+                                <div class="book-info">
+                                    <h5 class="book-title">Book Title</h5>
+                                    <p class="book-author">Author Name</p>
+                                    <div class="borrow-date">Due Date: 01/30/2024</div>
+                                    <div class="borrow-date">Return Date: 01/30/2025</div>
+                                    <a href="#" class="btn btn-success btn-sm">Read Now</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info Section (Right Side) -->
+        <div class="user-section">
+            <div class="user-info">
+                <p>Email: @Context.Session.GetString("Email")</p>
+            </div>
+            <div class="user-info">
+                <p>First Name: @Context.Session.GetString("FirstName")</p>
+            </div>
+            <div class="user-info">
+                <p>Last Name: @Context.Session.GetString("LastName")</p>
+            </div>
+        </div>
+    </div>
+</div>
