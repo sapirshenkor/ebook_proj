@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Books>
+@{
+    var sectionId = ViewData["CarouselId"] as string;
+    var sectionTitle = ViewData["SectionTitle"] as string;
+    var itemsPerSlide = ViewData["ItemsPerSlide"] as int? ?? 4;
+    var books = Model.ToList();
+}
+
+<section class="@(ViewData["SectionClass"] ?? "container py-5")">
+    <h2 class="section-title">@sectionTitle</h2>
+    
+    <div id="@sectionId" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @for (int i = 0; i < books.Count; i += itemsPerSlide)
+            {
+                var isActive = i == 0 ? "active" : "";
+                <div class="carousel-item @isActive">
+                    <div class="row">
+                        @foreach (var book in books.Skip(i).Take(itemsPerSlide))
+                        {
+                            <div class="col-md-@(12/itemsPerSlide)">
+                                <div class="card book-card hover-pointer" onclick="showBookDetails('@book.BookID', '@book.Title', '@book.Author', '@book.Description', '@book.BuyingPrice', '@book.BorrowPrice', '@book.Genre', '@book.PublicationDate.ToString("dd/MM/yyyy")', '@book.BookCover')">
+                                    @if (!string.IsNullOrEmpty(book.BookCover))
+                                    {
+                                        <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title">
+                                    }
+                                    else
+                                    {
+                                        <img src="https://via.placeholder.com/300x400" class="card-img-top book-image" alt="@book.Title">
+                                    }
+                                    <div class="card-body book-info">
+                                        <h5 class="book-title">@book.Title</h5>
+                                        <p class="book-author">@book.Author</p>
+                                        <p class="book-price">$@book.BuyingPrice.ToString("0.00")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        @if (books.Count > itemsPerSlide)
+        {
+            <button class="carousel-control-prev" type="button" data-bs-target="#@sectionId" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#@sectionId" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        }
+    </div>
+</section>

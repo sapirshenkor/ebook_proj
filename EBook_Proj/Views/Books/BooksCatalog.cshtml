@@ -1,0 +1,133 @@
+﻿@model EBook_Proj.Models.HomePageBooksViewModel
+
+@{
+    ViewData["Title"] = "Books Catalog";
+}
+
+@await Html.PartialAsync("_SearchPartial", Model)
+
+<div class="container mt-4">
+    <h1 class="mb-4">Books Catalog</h1>
+
+    <div id="booksContainer">
+        @if (Model.FeaturedBooks != null && Model.FeaturedBooks.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var book in Model.FeaturedBooks)
+                {
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(book.BookCover))
+                            {
+                                <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title" style="height: 300px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="text-center p-3 bg-light">
+                                    <i class="bi bi-book" style="font-size: 2rem;"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@book.Title</h5>
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <div>Author: @book.Author</div>
+                                        <div>Publisher: @book.Publisher</div>
+                                        <div>Genre: @book.Genre</div>
+                                        <div>Published: @book.PublicationDate.ToString("d")</div>
+                                        <div>Pages: @book.PageCount</div>
+                                    </small>
+                                </div>
+                                @if (!string.IsNullOrEmpty(book.Description))
+                                {
+                                    <p class="card-text">@(book.Description.Length > 150 ? book.Description.Substring(0, 147) + "..." : book.Description)</p>
+                                }
+                                <div class="d-flex flex-column">
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                        <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                    </div>
+                                    @if (book.AgeLimit > 0)
+                                    {
+                                        <div class="mb-2">
+                                            <span class="badge bg-warning text-dark">Age @book.AgeLimit+</span>
+                                        </div>
+                                    }
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Available Copies: @book.BorrowCount</small>
+                                        <div class="btn-group">
+                                            <a asp-action="Details" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
+                                            @if (book.BorrowCount > 0)
+                                            {
+                                                <a asp-action="Borrow" asp-route-id="@book.BookID" class="btn btn-sm btn-success">Borrow</a>
+                                            }
+                                            <a asp-action="Buy" asp-route-id="@book.BookID" class="btn btn-sm btn-primary">Buy</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                No books are currently available in the catalog.
+            </div>
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let searchTimer;
+            const MIN_CHARS = 2;
+
+            function performSearch() {
+                const searchString = $('#searchString').val().trim();
+                const genre = $('#genre').val();
+
+                if (searchString === '' || searchString.length >= MIN_CHARS) {
+                    // Update URL without refreshing page
+                    let newUrl = '@Url.Action("BooksCatalog", "Books")';
+                    if (searchString || genre) {
+                        newUrl += '?searchString=' + encodeURIComponent(searchString || '') + 
+                                '&genre=' + encodeURIComponent(genre || '');
+                    }
+                    window.history.pushState({}, '', newUrl);
+
+                    // Perform AJAX request
+                    $.get(newUrl)
+                        .done(function(response) {
+                            // Extract the books container from the response
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(response, 'text/html');
+                            const booksContainer = doc.querySelector('#booksContainer').innerHTML;
+                            
+                            // Update just the books container
+                            $('#booksContainer').html(booksContainer);
+                        })
+                        .fail(function() {
+                            console.error('Search failed');
+                        });
+                }
+            }
+
+            // Real-time search as user types with longer delay
+            $('#searchString').on('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(performSearch, 1000);
+            });
+
+            // Search when genre changes
+            $('#genre').on('change', function() {
+                performSearch();
+            });
+        });
+    </script>
+}

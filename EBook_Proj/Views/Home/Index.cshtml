@@ -1,51 +1,86 @@
 ﻿@{
     ViewData["Title"] = "Home";
 }
+@model EBook_Proj.Models.HomePageBooksViewModel
 
-@await Html.PartialAsync("_SearchPartial")
+
+
 
 <!-- Featured Books -->
-<section class="container py-5">
-    <h2 class="section-title">Featured Books</h2>
-    <div class="row">
-        @for (int i = 0; i < 4; i++)
-        {
-            <div class="col-md-3">
-                <div class="card book-card">
-                    <img src="https://via.placeholder.com/200x300" class="card-img-top book-image" alt="Book Cover">
-                    <div class="card-body book-info">
-                        <h5 class="book-title">Book Title</h5>
-                        <p class="book-author">Author Name</p>
-                        <p class="book-price">$12.99</p>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</section>
+@{
+    ViewData["CarouselId"] = "featuredBooksCarousel";
+    ViewData["SectionTitle"] = "Featured Books";
+    ViewData["ItemsPerSlide"] = 4;
+}
+@await Html.PartialAsync("_BooksCarousel", Model.FeaturedBooks)
 
 <!-- Popular Books -->
-<section class="bg-light py-5">
-    <div class="container">
-        <h2 class="section-title">Most Popular</h2>
-        <div class="row">
-            @for (int i = 0; i < 2; i++)
-            {
-                <div class="col-md-6">
-                    <div class="card book-card">
-                        <img src="https://via.placeholder.com/200x300" class="card-img-top book-image" alt="Book Cover">
-                        <div class="card-body book-info">
-                            <h5 class="book-title">Popular Book Title</h5>
-                            <p class="book-author">Author Name</p>
-                            <p class="book-price">$15.99</p>
+@{
+    ViewData["CarouselId"] = "popularBooksCarousel";
+    ViewData["SectionTitle"] = "Most Popular";
+    ViewData["ItemsPerSlide"] = 3;
+    //ViewData["SectionClass"] = "bg-light py-5";
+}
+@await Html.PartialAsync("_BooksCarousel", Model.PopularBooks)
+
+<!-- Book Details Modal -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="modal-book-cover-container">
+                                <img id="modalBookCover" src="" alt="Book Cover" class="modal-book-image">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h2 id="modalBookTitle" class="mb-3"></h2>
+                            <h5 id="modalBookAuthor" class="text-muted mb-4"></h5>
+
+                            <div class="book-details mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Genre:</strong> <span id="modalBookGenre"></span></p>
+                                        <p><strong>Publication Date:</strong> <span id="modalBookDate"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="description mb-4">
+                                <h5>Description</h5>
+                                <p id="modalBookDescription" class="text-muted"></p>
+                            </div>
+
+                            <div class="pricing">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="price-box p-3 bg-light rounded text-center">
+                                            <h6>Buy</h6>
+                                            <h4 id="modalBookBuyPrice" class="text-primary"></h4>
+                                            <button class="btn btn-primary">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-box p-3 bg-light rounded text-center">
+                                            <h6>Borrow</h6>
+                                            <h4 id="modalBookBorrowPrice" class="text-success"></h4>
+                                            <button class="btn btn-success">Borrow Now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
-</section>
-
+</div>
 <!-- Feedback Section -->
 <section class="container py-5">
     <h2 class="section-title">What Our Readers Say</h2>
