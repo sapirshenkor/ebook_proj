@@ -1,0 +1,58 @@
+﻿<!-- Book Details Modal -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="modal-book-cover-container">
+                                <img id="modalBookCover" src="" alt="Book Cover" class="modal-book-image">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h2 id="modalBookTitle" class="mb-3"></h2>
+                            <h5 id="modalBookAuthor" class="text-muted mb-4"></h5>
+
+                            <div class="book-details mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Genre:</strong> <span id="modalBookGenre"></span></p>
+                                        <p><strong>Publication Date:</strong> <span id="modalBookDate"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="description mb-4">
+                                <h5>Description</h5>
+                                <p id="modalBookDescription" class="text-muted"></p>
+                            </div>
+
+                            <div class="pricing">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="price-box p-3 bg-light rounded text-center">
+                                            <h6>Buy</h6>
+                                            <h4 id="modalBookBuyPrice" class="text-primary"></h4>
+                                            <button class="btn btn-primary">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-box p-3 bg-light rounded text-center">
+                                            <h6>Borrow</h6>
+                                            <h4 id="modalBookBorrowPrice" class="text-success"></h4>
+                                            <button class="btn btn-success">Borrow Now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

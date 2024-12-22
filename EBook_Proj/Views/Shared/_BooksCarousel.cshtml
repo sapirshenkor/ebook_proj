@@ -19,7 +19,17 @@
                         @foreach (var book in books.Skip(i).Take(itemsPerSlide))
                         {
                             <div class="col-md-@(12/itemsPerSlide)">
-                                <div class="card book-card hover-pointer" onclick="showBookDetails('@book.BookID', '@book.Title', '@book.Author', '@book.Description', '@book.BuyingPrice', '@book.BorrowPrice', '@book.Genre', '@book.PublicationDate.ToString("dd/MM/yyyy")', '@book.BookCover')">
+                                <div class="card book-card hover-pointer"
+                                     data-book-details
+                                     data-id="@book.BookID"
+                                     data-title="@book.Title"
+                                     data-author="@book.Author"
+                                     data-description="@book.Description"
+                                     data-buy-price="@book.BuyingPrice"
+                                     data-borrow-price="@book.BorrowPrice"
+                                     data-genre="@book.Genre"
+                                     data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
+                                     data-cover="@book.BookCover">
                                     @if (!string.IsNullOrEmpty(book.BookCover))
                                     {
                                         <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title">

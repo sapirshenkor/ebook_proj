@@ -5,6 +5,8 @@
 }
 
 @await Html.PartialAsync("_SearchPartial", Model)
+<!-- Book Details Modal -->
+@await Html.PartialAsync("_BookDetailsModal")
 
 <div class="container mt-4">
     <h1 class="mb-4">Books Catalog</h1>
@@ -17,51 +19,59 @@
                 {
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm">
-                            @if (!string.IsNullOrEmpty(book.BookCover))
-                            {
-                                <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title" style="height: 300px; object-fit: cover;">
-                            }
-                            else
-                            {
-                                <div class="text-center p-3 bg-light">
-                                    <i class="bi bi-book" style="font-size: 2rem;"></i>
-                                </div>
-                            }
-                            <div class="card-body">
-                                <h5 class="card-title">@book.Title</h5>
-                                <div class="mb-2">
-                                    <small class="text-muted">
-                                        <div>Author: @book.Author</div>
-                                        <div>Publisher: @book.Publisher</div>
-                                        <div>Genre: @book.Genre</div>
-                                        <div>Published: @book.PublicationDate.ToString("d")</div>
-                                        <div>Pages: @book.PageCount</div>
-                                    </small>
-                                </div>
-                                @if (!string.IsNullOrEmpty(book.Description))
+                            <div class="card book-card hover-pointer"
+                                 data-book-details
+                                 data-id="@book.BookID"
+                                 data-title="@book.Title"
+                                 data-author="@book.Author"
+                                 data-description="@book.Description"
+                                 data-buy-price="@book.BuyingPrice"
+                                 data-borrow-price="@book.BorrowPrice"
+                                 data-genre="@book.Genre"
+                                 data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
+                                 data-cover="@book.BookCover">
+                                @if (!string.IsNullOrEmpty(book.BookCover))
                                 {
-                                    <p class="card-text">@(book.Description.Length > 150 ? book.Description.Substring(0, 147) + "..." : book.Description)</p>
+                                    <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title" style="height: 300px; object-fit: cover;">
                                 }
-                                <div class="d-flex flex-column">
-                                    <div class="mb-2">
-                                        <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
-                                        <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                else
+                                {
+                                    <div class="text-center p-3 bg-light">
+                                        <i class="bi bi-book" style="font-size: 2rem;"></i>
                                     </div>
-                                    @if (book.AgeLimit > 0)
+                                }
+                                <div class="card-body">
+                                    <h5 class="card-title">@book.Title</h5>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <div>Genre: @book.Genre</div>
+                                        </small>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(book.Description))
                                     {
-                                        <div class="mb-2">
-                                            <span class="badge bg-warning text-dark">Age @book.AgeLimit+</span>
-                                        </div>
+                                        <p class="card-text">@(book.Description.Length > 150 ? book.Description.Substring(0, 147) + "..." : book.Description)</p>
                                     }
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">Available Copies: @book.BorrowCount</small>
-                                        <div class="btn-group">
-                                            <a asp-action="Details" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
-                                            @if (book.BorrowCount > 0)
-                                            {
-                                                <a asp-action="Borrow" asp-route-id="@book.BookID" class="btn btn-sm btn-success">Borrow</a>
-                                            }
-                                            <a asp-action="Buy" asp-route-id="@book.BookID" class="btn btn-sm btn-primary">Buy</a>
+                                    <div class="d-flex flex-column">
+                                        <div class="mb-2">
+                                            <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                            <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                        </div>
+                                        @if (book.AgeLimit > 0)
+                                        {
+                                            <div class="mb-2">
+                                                <span class="badge bg-warning text-dark">Age @book.AgeLimit+</span>
+                                            </div>
+                                        }
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Available Copies: @book.BorrowCount</small>
+                                            <div class="btn-group">
+                                                <a asp-action="Details" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
+                                                @if (book.BorrowCount > 0)
+                                                {
+                                                    <a asp-action="Borrow" asp-route-id="@book.BookID" class="btn btn-sm btn-success">Borrow</a>
+                                                }
+                                                <a asp-action="Buy" asp-route-id="@book.BookID" class="btn btn-sm btn-primary">Buy</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

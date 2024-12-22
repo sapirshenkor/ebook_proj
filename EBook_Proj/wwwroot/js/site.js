@@ -21,3 +21,20 @@ function showBookDetails(id, title, author, description, buyPrice, borrowPrice, 
     const modal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
     modal.show();
 }
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-book-details]').forEach(card => {
+        card.addEventListener('click', function() {
+            showBookDetails(
+                this.dataset.id,
+                this.dataset.title,
+                this.dataset.author,
+                this.dataset.description,
+                this.dataset.buyPrice,
+                this.dataset.borrowPrice,
+                this.dataset.genre,
+                this.dataset.pubdate,
+                this.dataset.cover
+            );
+        });
+    });
+});
