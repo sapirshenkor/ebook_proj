@@ -32,6 +32,54 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select id="author" class="form-select">
+                            <option value="">All Author</option>
+                            @foreach (var author in Model.Authors)
+                            {
+                                if (author == Model.SelectedAuthor)
+                                {
+                                    <option value="@author" selected>@author</option>
+                                }
+                                else
+                                {
+                                    <option value="@author">@author</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="priceSort">
+                            <option value="">Sort by Price</option>
+                            <option value="asc">Price: Low to High</option>
+                            <option value="desc">Price: High to Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="yearSort">
+                            <option value="">Sort by Year</option>
+                            <option value="asc">Oldest First</option>
+                            <option value="desc">Newest First</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 ">
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="minPrice" placeholder="Min $">
+                            <input type="number" class="form-control" id="maxPrice" placeholder="Max $">
+                        </div>
+                    </div>
+                    <div class="col-md-2 ">
+                        <button class="btn btn-outline-secondary w-100" id="resetFilters">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+    
 

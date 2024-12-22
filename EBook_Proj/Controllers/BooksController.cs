@@ -16,36 +16,67 @@ public class BooksController: Controller
         _context = context;
     }
     // Get all books and resent them in the books catalog
-    public async Task<IActionResult> BooksCatalog(string searchString, string genre)
+    public async Task<IActionResult> BooksCatalog(string searchString, string genre, string priceSort, string yearSort,string author, decimal? minPrice, decimal? maxPrice)
     {
-        // Get unique genres from the database
-        var genres = await _context.Books
-            .Select(b => b.Genre)
-            .Distinct()
-            .Where(g => !string.IsNullOrEmpty(g))
-            .ToListAsync();
+        var query = _context.Books.AsQueryable();
 
-        // Start with all books
-        var booksQuery = _context.Books.AsQueryable();
-
-        // Apply search filters if provided
+        // Apply search filter
         if (!string.IsNullOrEmpty(searchString))
         {
-            booksQuery = booksQuery.Where(b => 
+            query = query.Where(b => 
                 b.Title.Contains(searchString) || 
                 b.Author.Contains(searchString) || 
                 b.Description.Contains(searchString));
         }
 
+        // Apply genre filter
         if (!string.IsNullOrEmpty(genre))
         {
-            booksQuery = booksQuery.Where(b => b.Genre == genre);
+            query = query.Where(b => b.Genre == genre);
+        }
+        // Apply author filter
+        if (!string.IsNullOrEmpty(author))
+        {
+            query=query.Where(b => b.Author == author);
+        }
+        // Price range filter
+        if (minPrice.HasValue)
+        {
+            query = query.Where(b => b.BuyingPrice >= minPrice.Value);
+        }
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(b => b.BuyingPrice <= maxPrice.Value);
+        }
+
+        // Apply price sorting
+        switch (priceSort?.ToLower())
+        {
+            case "asc":
+                query = query.OrderBy(b => b.BuyingPrice);
+                break;
+            case "desc":
+                query = query.OrderByDescending(b => b.BuyingPrice);
+                break;
+        }
+
+        // Apply year sorting
+        switch (yearSort?.ToLower())
+        {
+            case "asc":
+                query = query.OrderBy(b => b.PublicationDate);
+                break;
+            case "desc":
+                query = query.OrderByDescending(b => b.PublicationDate);
+                break;
         }
 
         var viewModel = new HomePageBooksViewModel
         {
-            FeaturedBooks = await booksQuery.ToListAsync(),
-            Genres = genres,
+            FeaturedBooks = await query.ToListAsync(),
+            Genres = await _context.Books.Select(b => b.Genre).Distinct().ToListAsync(),
+            Authors = await _context.Books.Select(b => b.Author).Distinct().ToListAsync(),
+            SelectedAuthor = author,
             SearchString = searchString,
             SelectedGenre = genre
         };

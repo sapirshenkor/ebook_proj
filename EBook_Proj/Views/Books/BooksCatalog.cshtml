@@ -17,7 +17,7 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 @foreach (var book in Model.FeaturedBooks)
                 {
-                    <div class="col-md-4">
+                    <div class="col-md-1">
                         <div class="card h-100 shadow-sm">
                             <div class="card book-card hover-pointer"
                                  data-book-details
@@ -98,29 +98,68 @@
             let searchTimer;
             const MIN_CHARS = 2;
 
-            function performSearch() {
+            // Function to attach modal event listeners
+            function attachBookDetailsListeners() {
+                document.querySelectorAll('[data-book-details]').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const dataset = this.dataset;
+                        showBookDetails(
+                            dataset.id,
+                            dataset.title,
+                            dataset.author,
+                            dataset.description,
+                            dataset.buyPrice,
+                            dataset.borrowPrice,
+                            dataset.genre,
+                            dataset.pubdate,
+                            dataset.cover
+                        );
+                    });
+                });
+            }
+
+            
+
+            function performSearch(additionalParams = {}) {
                 const searchString = $('#searchString').val().trim();
-                const genre = $('#genre').val();
+                const genre = $('#genre').val() || $('#genreFilter').val();
+                const priceSort = $('#priceSort').val();
+                const yearSort = $('#yearSort').val();
+                const author=$('#author').val();
+                const minPrice = $('#minPrice').val();
+                const maxPrice = $('#maxPrice').val();
 
                 if (searchString === '' || searchString.length >= MIN_CHARS) {
-                    // Update URL without refreshing page
                     let newUrl = '@Url.Action("BooksCatalog", "Books")';
-                    if (searchString || genre) {
-                        newUrl += '?searchString=' + encodeURIComponent(searchString || '') + 
-                                '&genre=' + encodeURIComponent(genre || '');
+                    let params = new URLSearchParams();
+
+                    if (searchString) params.append('searchString', searchString);
+                    if (genre) params.append('genre', genre);
+                    if (priceSort) params.append('priceSort', priceSort);
+                    if (yearSort) params.append('yearSort', yearSort);
+                    if (author) params.append('author', author);
+                    if (minPrice) params.append('minPrice', minPrice);
+                    if (maxPrice) params.append('maxPrice', maxPrice);
+
+                    // Add any additional parameters
+                    Object.keys(additionalParams).forEach(key => {
+                        params.append(key, additionalParams[key]);
+                    });
+
+                    if (params.toString()) {
+                        newUrl += '?' + params.toString();
                     }
+
                     window.history.pushState({}, '', newUrl);
 
-                    // Perform AJAX request
                     $.get(newUrl)
                         .done(function(response) {
-                            // Extract the books container from the response
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(response, 'text/html');
                             const booksContainer = doc.querySelector('#booksContainer').innerHTML;
-                            
-                            // Update just the books container
                             $('#booksContainer').html(booksContainer);
+                            // Reattach event listeners after content update
+                            attachBookDetailsListeners();
                         })
                         .fail(function() {
                             console.error('Search failed');
@@ -128,16 +167,55 @@
                 }
             }
 
-            // Real-time search as user types with longer delay
+            // Search input handler
             $('#searchString').on('input', function() {
                 clearTimeout(searchTimer);
                 searchTimer = setTimeout(performSearch, 1000);
             });
 
-            // Search when genre changes
-            $('#genre').on('change', function() {
+            // Genre select handler
+            $('#genre, #genreFilter').on('change', function() {
                 performSearch();
             });
+
+            // Author select handler
+            $('#author, #authorFilter').on('change', function() {
+                performSearch();
+            });
+
+            // Price sort handler
+            $('#priceSort').on('change', function() {
+                performSearch();
+            });
+
+            // Year sort handler
+            $('#yearSort').on('change', function() {
+                performSearch();
+            });
+            // Price range handler
+            $('#minPrice, #maxPrice').on('change', function() {
+                performSearch();
+            });
+
+            // Reset filters
+            $('#resetFilters').click(function() {
+                $('#priceSort').val('');
+                $('#genreFilter').val('');
+                $('#yearSort').val('');
+                $('#author').val('');
+                $('#minPrice').val('');
+                $('#maxPrice').val('');
+                performSearch();
+            });
+
+            // Set initial values from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            $('#priceSort').val(urlParams.get('priceSort') || '');
+            $('#genreFilter').val(urlParams.get('genre') || '');
+            $('#yearSort').val(urlParams.get('yearSort') || '');
+            $('#authorFilter').val(urlParams.get('author') || '');
+            $('#minPrice').val(urlParams.get('minPrice') || '');
+            $('#maxPrice').val(urlParams.get('maxPrice') || '');
         });
     </script>
 }
