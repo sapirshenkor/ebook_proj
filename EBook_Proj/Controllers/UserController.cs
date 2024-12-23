@@ -62,6 +62,25 @@ public class UserController : Controller
         return View();
     }
 
+    public async Task<IActionResult> SiteReview(SiteReviewModel siteReview)
+    {
+        if (ModelState.IsValid)
+        {
+            var customerIDString = HttpContext.Session.GetString("CustomerID");
+            if (string.IsNullOrEmpty(customerIDString))
+            {
+                return RedirectToAction("Login", "User");
+
+            }
+            siteReview.UserID = int.Parse(customerIDString);
+            _context.Add(siteReview);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("UserPage", "User");
+        }
+        return View("UserPage");
+        
+    }
+
     public IActionResult UserPage()
     {
         return View();
