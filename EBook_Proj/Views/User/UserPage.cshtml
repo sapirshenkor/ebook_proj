@@ -63,41 +63,48 @@
     </div>
 </div>
 
+<!-- Button trigger modal -->
+<button type="button" class="btn bg-white rounded-pill shadow-sm border-0"
+        data-bs-toggle="modal"
+        data-bs-target="#reviewSiteModal"
+        style="transition: all 0.3s ease; color: #4e73df;">
+    <i class="bi bi-pencil-square me-2"></i>
+    Leave Feedback
+</button>
 
-<!-- Site Review Section -->
-<div class="container mt-4">
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Site Review</h4>
-                </div>
-                <div class="card-body">
-                    <form asp-controller="User" asp-action="SiteReview" method="post">
-                        <!-- Rating -->
-                        <div class="mb-3">
-                            <label for="Rate" class="form-label">Rating</label>
-                            <select class="form-select" id="Rate" name="Rate" required>
-                                <option value="">Select a rating...</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <!-- Comments -->
-                        <div class="mb-3">
-                            <label for="Description" class="form-label">Description</label>
-                            <textarea class="form-control" id="Description" name="Description" rows="3" required></textarea>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                    </form>
-                </div>
+<div class="modal fade" id="reviewSiteModal" tabindex="-1" aria-labelledby="reviewSiteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="reviewSiteModalLabel">Site Review</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <form asp-controller="User" asp-action="SiteReview" method="post">
+                <div class="modal-body">
+                    <!-- Rating -->
+                    <div class="mb-3">
+                        <label for="Rate" class="form-label">Rating</label>
+                        <select class="form-select" id="Rate" name="Rate" required>
+                            <option value="">Select a rating...</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="mb-3">
+                        <label for="Description" class="form-label">Description</label>
+                        <textarea class="form-control" id="Description" name="Description" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -9,5 +9,9 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
     {}
     public DbSet<UserModel> Users { get; set; }
+
     public DbSet<Books> Books { get; set; }
+
+    public DbSet<SiteReviewModel> SiteReview {get; set;}
 }
+
