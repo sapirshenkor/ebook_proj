@@ -28,6 +28,12 @@ public class UserController : Controller
     {
         if (ModelState.IsValid)
         {
+            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            {
+                ModelState.AddModelError("Email", "Email already taken");
+                return View(user);
+            }
+            
             _context.Add(user);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Home");

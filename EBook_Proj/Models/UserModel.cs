@@ -9,6 +9,8 @@ public class UserModel
     [Required(ErrorMessage = "Please Enter Last Name")]
     public string LastName { get; set; }
     [Required(ErrorMessage = "Please Email Address")]
+    [EmailAddress(ErrorMessage = "Invalid Email Address")]
+    [Display(Name = "Email")]
     public string Email { get; set; }
     [Required(ErrorMessage = "Please Enter Password")]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 

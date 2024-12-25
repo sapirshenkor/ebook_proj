@@ -1,5 +1,5 @@
 ﻿@model UserModel
-
+<script src="~/js/createUser.js"></script>
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-md-6 col-lg-4">
@@ -17,7 +17,6 @@
                         <div class="mb-4">
                             <div class="form-floating">
                                 <input asp-for="FirstName" class="form-control" placeholder="First Name" />
-                                <label asp-for="FirstName" class="text-muted"></label>
                                 <span asp-validation-for="FirstName" class="text-danger small"></span>
                             </div>
                         </div>
@@ -25,31 +24,34 @@
                         <div class="mb-4">
                             <div class="form-floating">
                                 <input asp-for="LastName" class="form-control" placeholder="Last Name" />
-                                <label asp-for="LastName" class="text-muted"></label>
                                 <span asp-validation-for="LastName" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <div class="form-floating">
-                                <input asp-for="Email" class="form-control" placeholder="Email" />
-                                <label asp-for="Email" class="text-muted"></label>
+                                <input id="email" asp-for="Email" class="form-control" placeholder="Email" />
                                 <span asp-validation-for="Email" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <div class="form-floating">
-                                <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
-                                <label asp-for="Password" class="text-muted"></label>
+                                <input id="password" asp-for="Password" class="form-control" type="password" placeholder="Password" />
                                 <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input id="confirm_password" class="form-control" type="password" placeholder="Confirm Password" />
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 mb-4">
                             <button asp-action="Create" asp-controller="User" type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
                                 Create Account <i class="bi bi-arrow-right ms-2"></i>
-                                </button>
+                            </button>
                         </div>
 
                         <div class="text-center">
@@ -71,10 +73,32 @@
             </div>
         </div>
     </div>
+
+<div class="modal fade" id="validationModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="validationModalLabel">
+                    <i class="bi bi-exclamation-circle me-2"></i>Validation Errors
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group list-group-flush" id="errorList">
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.querySelector('button[type=\'submit\']').disabled = false;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
+</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <!-- Add Bootstrap Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="~/js/createUser.js"></script>
 }
