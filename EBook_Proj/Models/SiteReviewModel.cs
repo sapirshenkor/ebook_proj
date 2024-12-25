@@ -11,4 +11,5 @@ public class SiteReviewModel
     public int Rate { get; set; }
     [Required(ErrorMessage = "Please add description.")]
     public string Description { get; set; }
+    public virtual UserModel User { get; set; }
 }

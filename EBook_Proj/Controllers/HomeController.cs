@@ -37,7 +37,11 @@ public class HomeController : Controller
             PopularBooks = await _context.Books
                 .OrderByDescending(b => b.BorrowCount)
                 .Take(4)
-                .ToListAsync()
+                .ToListAsync(),
+            
+            SiteReviews = await _context.SiteReview
+            .Include(r => r.User)
+            .ToListAsync()
         };
 
         return View(viewModel);

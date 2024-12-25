@@ -27,35 +27,105 @@
 @await Html.PartialAsync("_BookDetailsModal")
 
 
-<!-- Feedback Section -->
+@* <!-- Feedback Section --> *@
+@* <section class="container py-5"> *@
+@*     <h2 class="section-title">What Our Readers Say</h2> *@
+@*     <div class="row"> *@
+@*         <div class="col-md-6"> *@
+@*             <div class="feedback-card"> *@
+@*                 <div class="rating"> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                 </div> *@
+@*                 <p class="feedback-text">"Amazing selection of books! The interface is so easy to use and the delivery was super quick."</p> *@
+@*                 <p class="feedback-author">- Sapir Shenkor</p> *@
+@*             </div> *@
+@*         </div> *@
+@*         <div class="col-md-6"> *@
+@*             <div class="feedback-card"> *@
+@*                 <div class="rating"> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                     <i class="fas fa-star"></i> *@
+@*                 </div> *@
+@*                 <p class="feedback-text">"The best digital library I've ever used. Great prices and excellent customer service!"</p> *@
+@*                 <p class="feedback-author">- Liran Hozias</p> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </section> *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <section class="container py-5">
-    <h2 class="section-title">What Our Readers Say</h2>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="feedback-card">
-                <div class="rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p class="feedback-text">"Amazing selection of books! The interface is so easy to use and the delivery was super quick."</p>
-                <p class="feedback-author">- Sapir Shenkor</p>
-            </div>
+    <h2 class="text-center mb-4">What Our Readers Say</h2>
+
+    <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @{
+                var reviewGroups = Model.SiteReviews
+                    .Select((review, index) => new { review, index })
+                    .GroupBy(x => x.index / 2)
+                    .Select(g => g.Select(x => x.review).ToList())
+                    .ToList();
+
+                for (int i = 0; i < reviewGroups.Count; i++)
+                {
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <div class="row g-4">
+                            @foreach (var review in reviewGroups[i])
+                            {
+                                <div class="col-md-6">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                @for (int star = 0; star < review.Rate; star++)
+                                                {
+                                                    <i class="fas fa-star text-warning"></i>
+                                                }
+                                                @for (int star = review.Rate; star < 5; star++)
+                                                {
+                                                    <i class="far fa-star text-warning"></i>
+                                                }
+                                            </div>
+                                            <p class="card-text mb-3">@review.Description</p>
+                                            <footer class="blockquote-footer mt-auto">
+                                                @review.User.FirstName @review.User.LastName
+                                            </footer>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
         </div>
-        <div class="col-md-6">
-            <div class="feedback-card">
-                <div class="rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p class="feedback-text">"The best digital library I've ever used. Great prices and excellent customer service!"</p>
-                <p class="feedback-author">- Liran Hozias</p>
-            </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+
+        <div class="carousel-indicators">
+            @for (int i = 0; i < reviewGroups.Count; i++)
+            {
+                <button type="button"
+                        data-bs-target="#reviewsCarousel"
+                        data-bs-slide-to="@i"
+                        class="@(i == 0 ? "active" : "")"
+                        aria-current="@(i == 0 ? "true" : "false")"
+                        aria-label="Slide @(i + 1)"></button>
+            }
         </div>
     </div>
 </section>
+

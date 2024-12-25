@@ -70,6 +70,7 @@ public class UserController : Controller
 
     public async Task<IActionResult> SiteReview(SiteReviewModel siteReview)
     {
+        ModelState.Remove("User");
         if (ModelState.IsValid)
         {
             var customerIDString = HttpContext.Session.GetString("CustomerID");

@@ -1,4 +1,5 @@
-﻿<div class="container">
+﻿@model SiteReviewModel
+<div class="container">
     <h2 class="welcome-header">Welcome, @Context.Session.GetString("FirstName") @Context.Session.GetString("LastName")!</h2>
 
     <div class="dashboard-container">
@@ -71,20 +72,19 @@
     <i class="bi bi-pencil-square me-2"></i>
     Leave Feedback
 </button>
-
-<div class="modal fade" id="reviewSiteModal" tabindex="-1" aria-labelledby="reviewSiteModalLabel" aria-hidden="true">
+<div class="modal fade" id="reviewSiteModal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="reviewSiteModalLabel">Site Review</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">Site Review</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form asp-controller="User" asp-action="SiteReview" method="post">
                 <div class="modal-body">
-                    <!-- Rating -->
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="mb-3">
-                        <label for="Rate" class="form-label">Rating</label>
-                        <select class="form-select" id="Rate" name="Rate" required>
+                        <label asp-for="Rate" class="form-label">Rating</label>
+                        <select asp-for="Rate" class="form-select" required>
                             <option value="">Select a rating...</option>
                             <option value="5">5 - Excellent</option>
                             <option value="4">4 - Very Good</option>
@@ -92,12 +92,12 @@
                             <option value="2">2 - Fair</option>
                             <option value="1">1 - Poor</option>
                         </select>
+                        <span asp-validation-for="Rate" class="text-danger"></span>
                     </div>
-
-                    <!-- Comments -->
                     <div class="mb-3">
-                        <label for="Description" class="form-label">Description</label>
-                        <textarea class="form-control" id="Description" name="Description" rows="3" required></textarea>
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="modal-footer">

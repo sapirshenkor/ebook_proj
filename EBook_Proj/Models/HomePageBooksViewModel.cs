@@ -1,4 +1,6 @@
 ﻿namespace EBook_Proj.Models;
+using  EBook_Proj.Models;  
+
 
 public class HomePageBooksViewModel
 {
@@ -8,6 +10,7 @@ public class HomePageBooksViewModel
         PopularBooks = new List<Books>();
         Genres = new List<string>();
         Authors = new List<string>();
+        SiteReviews = new List<SiteReviewModel>();
     }
     public IEnumerable<Books> FeaturedBooks { get; set; }
     public IEnumerable<Books> PopularBooks { get; set; }
@@ -16,4 +19,6 @@ public class HomePageBooksViewModel
     public String SelectedAuthor { get; set; }
     public string SearchString { get; set; }
     public string SelectedGenre { get; set; }
+    public IEnumerable<SiteReviewModel> SiteReviews { get; set; }
+
 }
