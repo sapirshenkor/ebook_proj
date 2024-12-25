@@ -21,6 +21,7 @@ function showBookDetails(id, title, author, description, buyPrice, borrowPrice, 
     const modal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
     modal.show();
 }
+
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-book-details]').forEach(card => {
         card.addEventListener('click', function() {

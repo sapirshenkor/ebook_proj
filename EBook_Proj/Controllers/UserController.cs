@@ -67,6 +67,13 @@ public class UserController : Controller
         }
         return View();
     }
+    [HttpPost]
+    public IActionResult Logout()
+    {
+        // Clear all session data
+        HttpContext.Session.Clear();
+        return RedirectToAction("Index", "Home");
+    }
 
     public async Task<IActionResult> SiteReview(SiteReviewModel siteReview)
     {
@@ -86,6 +93,11 @@ public class UserController : Controller
         }
         return View("UserPage");
         
+    }
+
+    public IActionResult Profile()
+    {
+        return RedirectToAction("UserPage", "User");
     }
 
     public IActionResult UserPage()

@@ -83,6 +83,17 @@ public class BooksController: Controller
 
         return View(viewModel);
     }
+
+    public async Task<IActionResult> BookDetails(int id)
+    {
+        var book= await _context.Books.FirstOrDefaultAsync(b=>b.BookID == id);
+        if (book == null)
+        {
+            return NotFound();
+        }
+        return View(book);
+    }
+
     
     
 }

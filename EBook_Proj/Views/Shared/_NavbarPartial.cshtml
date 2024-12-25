@@ -30,17 +30,22 @@
             
 
             @* Authentication Links *@
+            @using Microsoft.AspNetCore.Http
+
             <ul class="navbar-nav">
-                @if (User.Identity?.IsAuthenticated ?? false)
+                @if (Context.Session.GetString("Email") != null)
                 {
+                    var firstName = Context.Session.GetString("FirstName");
+                    var isAdmin = Context.Session.GetString("IsAdmin") == "True";
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" 
+                        <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>@User.Identity.Name
+                            <i class="fas fa-user me-1"></i>@firstName
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                <a class="dropdown-item" asp-controller="User" asp-action="Profile">
                                     <i class="fas fa-user-circle me-2"></i>Profile
                                 </a>
                             </li>
@@ -49,9 +54,18 @@
                                     <i class="fas fa-book me-2"></i>My Books
                                 </a>
                             </li>
+                            @if (isAdmin)
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                        <i class="fas fa-cog me-2"></i>Admin Dashboard
+                                    </a>
+                                </li>
+                            }
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                <form asp-controller="User" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
                                     <button type="submit" class="dropdown-item text-danger">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                     </button>
@@ -69,12 +83,12 @@
                 else
                 {
                     <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Login">
+                        <a class="nav-link text-light" asp-controller="User" asp-action="Login">
                             <i class="fas fa-sign-in-alt me-1"></i>Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Create">
+                        <a class="nav-link text-light" asp-controller="User" asp-action="Create">
                             <i class="fas fa-user-plus me-1"></i>Register
                         </a>
                     </li>

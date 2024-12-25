@@ -1,0 +1,89 @@
+﻿@model EBook_Proj.Models.Books
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Book Cover and Actions -->
+        <div class="col-md-4">
+            <div class="card">
+                @if (!string.IsNullOrEmpty(Model.BookCover))
+                {
+                    <img src="@Model.BookCover" class="card-img-top" alt="@Model.Title" style="height: 400px; object-fit: cover;">
+                }
+                else
+                {
+                    <div class="text-center p-5 bg-light">
+                        <i class="bi bi-book" style="font-size: 8rem;"></i>
+                    </div>
+                }
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if (Model.BorrowCount > 0)
+                        {
+                            <a asp-action="Borrow" asp-route-id="@Model.BookID" class="btn btn-success">
+                                Borrow for $@Model.BorrowPrice.ToString("F2")
+                            </a>
+                        }
+                        <a asp-action="Buy" asp-route-id="@Model.BookID" class="btn btn-primary">
+                            Buy for $@Model.BuyingPrice.ToString("F2")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Details -->
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="BooksCatalog">Books</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-3">@Model.Title</h1>
+            <h4 class="text-muted mb-4">by @Model.Author</h4>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Publisher</dt>
+                        <dd class="col-sm-8">@Model.Publisher</dd>
+
+                        <dt class="col-sm-4">Published</dt>
+                        <dd class="col-sm-8">@Model.PublicationDate.ToString("d")</dd>
+
+                        <dt class="col-sm-4">Genre</dt>
+                        <dd class="col-sm-8">@Model.Genre</dd>
+
+                        <dt class="col-sm-4">Pages</dt>
+                        <dd class="col-sm-8">@Model.PageCount</dd>
+
+                        <dt class="col-sm-4">Age Limit</dt>
+                        <dd class="col-sm-8">@(Model.AgeLimit > 0 ? $"{Model.AgeLimit}+" : "No age restriction")</dd>
+
+                        <dt class="col-sm-4">Available Copies</dt>
+                        <dd class="col-sm-8">@Model.BorrowCount</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-5">
+                <h5 class="mb-3">Description</h5>
+                <p class="lead">@Model.Description</p>
+            </div>
+
+            <!-- Reviews Section (Placeholder) -->
+            <div class="mb-4">
+                <h5 class="mb-3">Reviews</h5>
+                <div class="alert alert-info">
+                    Reviews feature coming soon!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
