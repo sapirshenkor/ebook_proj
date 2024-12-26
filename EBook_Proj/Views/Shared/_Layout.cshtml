@@ -12,37 +12,49 @@
     <link rel="stylesheet" href="~/css/UserPage.css" asp-append-version="true"/>
 </head>
 <body>
-    <div class="content-wrapper">
-        <header>
-            @await Html.PartialAsync("_NavbarPartial")
-        </header>
-        <div class="container-fluid p-0">
-            <main role="main">
+<div data-user-id="@Context.Session.GetString("CustomerID")"></div>
+<div class="content-wrapper">
+    <header>
+        @await Html.PartialAsync("_NavbarPartial")
+    </header>
+    <div class="container-fluid p-0">
+        <main role="main">
             @RenderBody()
 
-            </main>
-        </div>
+        </main>
     </div>
+</div>
 
-    <footer class="footer text-muted py-2 bg-light mt-auto border-top">
-        <div class="container">
-            <div class="row align-items-center" style="font-size: 0.9rem;">
-                <div class="col-md-6">
-                    &copy; 2024 - EBook - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </div>
-                <div class="col-md-6 text-end">
-                    <a href="#" class="text-decoration-none me-3 text-muted"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-decoration-none me-3 text-muted"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-decoration-none text-muted"><i class="fab fa-instagram"></i></a>
-                </div>
+<footer class="footer text-muted py-2 bg-light mt-auto border-top">
+    <div class="container">
+        <div class="row align-items-center" style="font-size: 0.9rem;">
+            <div class="col-md-6">
+                &copy; 2024 - EBook - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="#" class="text-decoration-none me-3 text-muted"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-decoration-none me-3 text-muted"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-decoration-none text-muted"><i class="fab fa-instagram"></i></a>
             </div>
         </div>
-    </footer>
-    
+    </div>
+</footer>
+
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/CartService.js"></script>
+<script>
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        if (isUserLoggedIn()){
+            cartService.updateCartCount();
+        }
+
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -39,3 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+function isUserLoggedIn() {
+    return '@Context.Session.GetString("Email")' !== '';
+}

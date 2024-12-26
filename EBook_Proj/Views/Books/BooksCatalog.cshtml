@@ -68,9 +68,21 @@
                                                 <a asp-action="BookDetails" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
                                                 @if (book.BorrowCount > 0)
                                                 {
-                                                    <a asp-action="Borrow" asp-route-id="@book.BookID" class="btn btn-sm btn-success">Borrow</a>
+                                                    <a class="btn btn-sm btn-success add-to-cart"
+                                                       data-id="@book.BookID"
+                                                       data-title="@book.Title"
+                                                       data-buy-price="@book.BuyingPrice"
+                                                       data-borrow-price="@book.BorrowPrice"
+                                                       data-cover="@book.BookCover"
+                                                       data-type="borrow">Borrow</a>
                                                 }
-                                                <a asp-action="Buy" asp-route-id="@book.BookID" class="btn btn-sm btn-primary">Buy</a>
+                                                <a class="btn btn-sm btn-primary add-to-cart" 
+                                                   data-id="@book.BookID"
+                                                   data-title="@book.Title"
+                                                   data-buy-price="@book.BuyingPrice"
+                                                   data-borrow-price="@book.BorrowPrice"
+                                                   data-cover="@book.BookCover"
+                                                   data-type="buy">>Buy</a>
                                             </div>
                                         </div>
                                     </div>
@@ -94,6 +106,13 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isUserLoggedIn()){
+                cartService.updateCartCount();    
+            }
+            
+        });
         // Clear existing modal instances when navigating back
         window.onunload = function() {
             const modal = document.getElementById('bookDetailsModal');
@@ -101,7 +120,7 @@
                 const bsModal = bootstrap.Modal.getInstance(modal);
                 if (bsModal) bsModal.dispose();
             }
-};
+        };
 
         // Prevent modal from showing on back navigation
         window.onpageshow = function(event) {
@@ -112,7 +131,7 @@
                 const backdrop = document.querySelector('.modal-backdrop');
                 if (backdrop) backdrop.remove();
             }
-};
+        };
         $(document).ready(function () {
             let searchTimer;
             const MIN_CHARS = 2;
@@ -236,6 +255,41 @@
             $('#minPrice').val(urlParams.get('minPrice') || '');
             $('#maxPrice').val(urlParams.get('maxPrice') || '');
         });
+
+        
+
+        
+
+        function addToCart(bookId, title, buyPrice, borrowPrice, cover, type) {
+            if (!isUserLoggedIn()) {
+                window.location.href = '/User/Login';
+                return;
+            }
+
+            cartService.addToCart({
+                id: bookId,
+                title: title,
+                buyPrice: buyPrice,
+                borrowPrice: borrowPrice,
+                cover: cover
+            }, type);
+            
+        }
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                event.stopPropagation();
+                const data = this.dataset;
+                addToCart(
+                    data.id,
+                    data.title,
+                    data.buyPrice,
+                    data.borrowPrice,
+                    data.cover,
+                    data.type
+                );
+            });
+        });
+    
     
     </script>
 }

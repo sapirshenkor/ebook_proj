@@ -1,0 +1,156 @@
+﻿@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col d-flex justify-content-between align-items-center">
+            <h2>Shopping Cart</h2>
+            <button class="btn btn-outline-danger" onclick="cartService.clearCart()">
+                <i class="bi bi-trash"></i> Clear Cart
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-md-8">
+            <div id="cartItems" class="card shadow-sm">
+                <div class="card-body p-0">
+                    <!-- Cart items will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Purchase Items</span>
+                        <span id="buySubtotal">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Borrow Items</span>
+                        <span id="borrowSubtotal">$0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total</strong>
+                        <strong id="cartTotal" class="text-primary">$0.00</strong>
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="checkout()">
+                        <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Item Template -->
+<template id="cartItemTemplate">
+    <div class="cart-item mb-3 p-3 border-bottom">
+        <div class="row align-items-center">
+            <div class="col-2">
+                <img src="" alt="" class="img-fluid cart-item-image">
+            </div>
+            <div class="col-4">
+                <h5 class="cart-item-title mb-1"></h5>
+                <span class="badge bg-info cart-item-type"></span>
+            </div>
+            <div class="col-2 text-center">
+                <span class="cart-item-price"></span>
+            </div>
+            <div class="col-2">
+                <div class="input-group">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(this, -1)">-</button>
+                    <input type="number" class="form-control form-control-sm text-center quantity-input" value="1" min="1" max="99">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="col-2 text-end">
+                <button class="btn btn-outline-danger btn-sm remove-item">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+@section Scripts {
+    <script>
+        const cartService = new CartService();
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCart();
+        });
+        
+
+        function displayCart() {
+            const cart = cartService.getCart();
+            const cartContainer = document.querySelector('#cartItems .card-body');
+            const template = document.getElementById('cartItemTemplate');
+            let subtotal = 0;
+
+            cartContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartContainer.innerHTML = '<p class="text-center my-5">Your cart is empty</p>';
+                updateOrderSummary(0);
+                return;
+            }
+
+            cart.forEach(item => {
+                const clone = template.content.cloneNode(true);
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                clone.querySelector('.cart-item-image').src = item.cover;
+                clone.querySelector('.cart-item-title').textContent = item.title;
+                clone.querySelector('.cart-item-price').textContent = item.price;
+                clone.querySelector('.quantity-input').value = item.quantity;
+                clone.querySelector('.remove-item').onclick = () => removeFromCart(item.bookId);
+
+                cartContainer.appendChild(clone);
+            });
+
+            updateOrderSummary(subtotal);
+        }
+        function removeFromCart(bookId) {
+            cartService.removeFromCart(bookId);
+        }
+
+        function updateOrderSummary(subtotal) {
+            document.getElementById('cartTotal').textContent = `$${subtotal.toFixed(2)}`;
+        }
+
+        function updateQuantity(button, change) {
+            const input = button.parentElement.querySelector('.quantity-input');
+            const newValue = parseInt(input.value) + change;
+            if (newValue >= 1 && newValue <= 99) {
+                input.value = newValue;
+                updateCartItemQuantity(button, newValue);
+            }
+        }
+
+        function updateCartItemQuantity(button, quantity) {
+            const cartItem = button.closest('.cart-item');
+            const title = cartItem.querySelector('.cart-item-title').textContent;
+            const cart = cartService.getCart();
+            const item = cart.find(i => i.title === title);
+            if (item) {
+                item.quantity = quantity;
+                localStorage.setItem('bookCart', JSON.stringify(cart));
+                displayCart();
+            }
+        }
+        
+
+        function checkout() {
+            alert('Proceeding to checkout...');
+        }
+    </script>
+}
