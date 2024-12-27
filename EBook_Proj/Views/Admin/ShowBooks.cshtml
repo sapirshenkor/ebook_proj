@@ -1,0 +1,174 @@
+﻿<div class="container mt-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a asp-controller="Admin" asp-action="AdminPage" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="mb-3 d-flex justify-content-end">
+        <a asp-controller="Admin" asp-action="AddBook" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBookModal">
+            <i class="bi bi-plus-circle"></i> Add Book
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Books Management</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Cover</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Genre</th>
+                        <th scope="col">Prices</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var book in Model)
+                    {
+                        <tr>
+                            <td>@book.BookID</td>
+                            <td>
+                                <img src="@book.BookCover" alt="@book.Title" class="img-thumbnail" style="max-height: 50px;">
+                            </td>
+                            <td>
+                                <strong>@book.Title</strong>
+                                <small class="d-block text-muted">@book.Publisher</small>
+                            </td>
+                            <td>@book.Author</td>
+                            <td>@book.Genre</td>
+                            <td>
+                                <div>Buy: @book.BuyingPrice.ToString("C")</div>
+                                <div>Borrow: @book.BorrowPrice.ToString("C")</div>
+                            </td>
+                            <td>
+                                <div>Available Copies: @book.BorrowCount</div>
+                                <div class="small text-muted">@book.PageCount pages</div>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-info" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBookModalLabel">Add New Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBook" asp-controller="Admin" asp-action="AddBook" method="post" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Title" class="form-label">Book Title</label>
+                                <input type="text" class="form-control" id="Title" name="Title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Author" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="Author" name="Author" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Publisher" class="form-label">Publisher</label>
+                                <input type="text" class="form-control" id="Publisher" name="Publisher">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PublicationDate" class="form-label">Publication Date</label>
+                                <input type="date" class="form-control" id="PublicationDate" name="PublicationDate">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Genre" class="form-label">Genre</label>
+                                <input type="text" class="form-control" id="Genre" name="Genre">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="AgeLimit" class="form-label">Age Limit</label>
+                                <input type="number" class="form-control" id="AgeLimit" name="AgeLimit" min="0" max="100">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="Description" class="form-label">Description</label>
+                                <textarea class="form-control" id="Description" name="Description" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BuyingPrice" class="form-label">Buying Price</label>
+                                <input type="number" class="form-control" id="BuyingPrice" name="BuyingPrice" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BorrowPrice" class="form-label">Borrow Price</label>
+                                <input type="number" class="form-control" id="BorrowPrice" name="BorrowPrice" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BorrowCount" class="form-label">Borrow Count</label>
+                                <input type="number" class="form-control" id="BorrowCount" name="BorrowCount" value="3" min="0" max="10">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PageCount" class="form-label">Page Count</label>
+                                <input type="number" class="form-control" id="PageCount" name="PageCount" min="1">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="BookCover" class="form-label">Book Cover URL</label>
+                                <input type="url" class="form-control" id="BookCover" name="BookCover"
+                                       placeholder="https://example.com/book-cover.jpg">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button  asp-action="AddBook" type="submit" class="btn btn-success">Add Book</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/AddBook.js"></script>
+}
