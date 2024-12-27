@@ -3,6 +3,14 @@
 
 // Write your JavaScript code.
 function showBookDetails(id, title, author, description, buyPrice, borrowPrice, genre, publicationDate, coverImage) {
+    // Store book data in modal's dataset
+    const modalElement = document.getElementById('bookDetailsModal');
+    modalElement.dataset.id = id;
+    modalElement.dataset.title = title;
+    modalElement.dataset.buyPrice = buyPrice;
+    modalElement.dataset.borrowPrice = borrowPrice;
+    modalElement.dataset.cover = coverImage;
+
     // Update modal content
     document.getElementById('modalBookTitle').textContent = title;
     document.getElementById('modalBookAuthor').textContent = author;
@@ -12,13 +20,11 @@ function showBookDetails(id, title, author, description, buyPrice, borrowPrice, 
     document.getElementById('modalBookGenre').textContent = genre || 'Not specified';
     document.getElementById('modalBookDate').textContent = publicationDate || 'Not specified';
 
-    // Update cover image
     const modalBookCover = document.getElementById('modalBookCover');
     modalBookCover.src = coverImage || 'https://via.placeholder.com/300x400';
     modalBookCover.alt = title;
 
-    // Show the modal
-    const modal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
+    const modal = new bootstrap.Modal(modalElement);
     modal.show();
 }
 
@@ -39,6 +45,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-function isUserLoggedIn() {
-    return '@Context.Session.GetString("Email")' !== '';
-}

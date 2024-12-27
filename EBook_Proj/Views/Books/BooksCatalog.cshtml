@@ -108,11 +108,9 @@
     <script>
         
         document.addEventListener('DOMContentLoaded', () => {
-            if (isUserLoggedIn()){
-                cartService.updateCartCount();    
-            }
-            
+            cartService.updateCartCount();            
         });
+        
         // Clear existing modal instances when navigating back
         window.onunload = function() {
             const modal = document.getElementById('bookDetailsModal');
@@ -151,6 +149,23 @@
                             dataset.genre,
                             dataset.pubdate,
                             dataset.cover
+                        );
+                    });
+                });
+            }
+            
+            function attachAddToCartListener() {
+                document.querySelectorAll('.add-to-cart').forEach(button => {
+                    button.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        const data = this.dataset;
+                        addToCart(
+                            data.id,
+                            data.title,
+                            data.buyPrice,
+                            data.borrowPrice,
+                            data.cover,
+                            data.type
                         );
                     });
                 });
@@ -198,6 +213,7 @@
                             $('#booksContainer').html(booksContainer);
                             // Reattach event listeners after content update
                             attachBookDetailsListeners();
+                            attachAddToCartListener()
                         })
                         .fail(function() {
                             console.error('Search failed');
@@ -261,10 +277,7 @@
         
 
         function addToCart(bookId, title, buyPrice, borrowPrice, cover, type) {
-            if (!isUserLoggedIn()) {
-                window.location.href = '/User/Login';
-                return;
-            }
+            
 
             cartService.addToCart({
                 id: bookId,

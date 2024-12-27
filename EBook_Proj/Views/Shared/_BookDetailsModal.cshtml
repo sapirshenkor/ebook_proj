@@ -37,14 +37,16 @@
                                         <div class="price-box p-3 bg-light rounded text-center">
                                             <h6>Buy</h6>
                                             <h4 id="modalBookBuyPrice" class="text-primary"></h4>
-                                            <button class="btn btn-primary">Add to Cart</button>
+                                            <button class="btn btn-primary add-to-cart-modal"
+                                                    data-type="buy">Add to Cart</button>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="price-box p-3 bg-light rounded text-center">
                                             <h6>Borrow</h6>
                                             <h4 id="modalBookBorrowPrice" class="text-success"></h4>
-                                            <button class="btn btn-success">Add to Cart</button>
+                                            <button class="btn btn-success add-to-cart-modal"
+                                                    data-type="borrow">Add to Cart</button>
                                         </div>
                                     </div>
                                 </div>
@@ -56,3 +58,33 @@
         </div>
     </div>
 </div>
+<script>
+    function addToCart(bookId, title, buyPrice, borrowPrice, cover, type) {
+
+        cartService.addToCart({
+            id: bookId,
+            title: title,
+            buyPrice: buyPrice,
+            borrowPrice: borrowPrice,
+            cover: cover
+        }, type);
+    }
+    
+    document.querySelectorAll('.add-to-cart-modal').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const type = this.dataset.type;
+            const modalData = document.getElementById('bookDetailsModal').dataset;
+
+            addToCart(
+                modalData.id,
+                modalData.title,
+                modalData.buyPrice,
+                modalData.borrowPrice,
+                modalData.cover,
+                type
+            );
+        });
+    });
+
+</script>

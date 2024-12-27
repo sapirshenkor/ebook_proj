@@ -2,8 +2,10 @@
     constructor() {
         this.userId = this.getUserId();
         this.cartKey = `bookCart_${this.userId}`;
+        this.isUserLoggedIn = this.getUserId() !== 'guest';
         this.initialize();
     }
+    
     initialize() {
         document.addEventListener('DOMContentLoaded', () => {
             this.updateCartCount();
@@ -22,6 +24,10 @@
     }
 
     addToCart(book, type) { // type can be 'buy' or 'borrow'
+        if (!this.isUserLoggedIn) {
+            window.location.href = '/User/Login';
+            return;
+        }
         const cart = this.getCart();
         
         // Check if book already exists in cart with same type
@@ -55,9 +61,11 @@
     }
 
     updateCartCount() {
-        const count = this.getCart().length;
-        const badge = document.querySelector('.cart-count');
-        if (badge) badge.textContent = count;
+        if (this.isUserLoggedIn) {
+            const count = this.getCart().length;
+            const badge = document.querySelector('.cart-count');
+            if (badge) badge.textContent = count;
+        }
     }
 
     clearCart() {
@@ -110,6 +118,7 @@
         document.getElementById('cartTotal').textContent = `$${(buySubtotal + borrowSubtotal).toFixed(2)}`;
     }
 }
+
 if (!window.cartService) {
     window.cartService = new CartService();
 }
