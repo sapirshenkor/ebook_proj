@@ -42,6 +42,20 @@ public class AdminController : Controller
         }
         return RedirectToAction("AdminPage");
     }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteBook(Books book)
+    {
+        var deleteBook = await _context.Books.FindAsync(book.BookID);
+        if (deleteBook == null)
+        {
+            return NotFound();
+        }
+        
+        _context.Books.Remove(deleteBook);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("ShowBooks");
+    }
     
     
     
