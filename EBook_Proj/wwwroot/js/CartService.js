@@ -18,7 +18,9 @@
         // Get user ID from session
         return document.querySelector('[data-user-id]')?.dataset.userId || 'guest';
     }
-
+    getCartKey(){
+        return this.cartKey;
+    }
     getCart() {
         return JSON.parse(localStorage.getItem(this.cartKey)) || [];
     }
@@ -30,7 +32,7 @@
         }
         const cart = this.getCart();
         
-        // Check if book already exists in cart with same type
+        // Check if book already exists in cart with same id
         const existingItem = cart.find(item =>
             item.bookId === book.id 
         );
