@@ -111,13 +111,35 @@
 
             cartContainer.appendChild(clone);
         });
-
         this.updateOrderSummary(buySubtotal, borrowSubtotal);
     }
     updateOrderSummary(buySubtotal, borrowSubtotal) {
         document.getElementById('buySubtotal').textContent = `$${buySubtotal.toFixed(2)}`;
         document.getElementById('borrowSubtotal').textContent = `$${borrowSubtotal.toFixed(2)}`;
         document.getElementById('cartTotal').textContent = `$${(buySubtotal + borrowSubtotal).toFixed(2)}`;
+    }
+    //checkout process for the cart
+    checkout(){
+        const cart = this.getCart();
+        
+        fetch('/Cart/Checkout', {
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cart)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Redirect to payment selection page
+                    window.location.href = '/Payment/Select';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing checkout. Please try again.');
+            });
     }
 }
 

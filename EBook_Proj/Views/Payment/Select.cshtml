@@ -1,0 +1,26 @@
+﻿<div class="payment-selection">
+    <h2>Select Payment Method</h2>
+
+    <div class="order-summary">
+        <h2>Order Summary</h2>
+        <p>Total Amount: $@ViewBag.CartTotal</p>
+    </div>
+
+    <div class="payment-options">
+        <button class="btn btn-primary m-2" onclick="window.location.href='/Payment/PayWithCard'">
+            Pay with Credit Card
+        </button>
+
+        <button class="btn btn-primary m-2" onclick="window.location.href='/Payment/PayWithPayPal'">
+            Pay with PayPal
+        </button>
+    </div>
+</div>
+
+@* <script> *@
+@*     document.addEventListener('DOMContentLoaded', () => { *@
+@*         const total = sessionStorage.getItem('cartTotal'); *@
+@*         document.getElementById('totalAmount').textContent = *@
+@*             parseFloat(total).toFixed(2); *@
+@*     }); *@
+@* </script> *@

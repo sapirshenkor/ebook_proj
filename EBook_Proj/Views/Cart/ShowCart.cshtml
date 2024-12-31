@@ -151,7 +151,14 @@
         
 
         function checkout() {
-            alert('Proceeding to checkout...');
+            //check if there is items in the cart
+            if (cartService.getCart() === null || cartService.getCart().length === 0) {
+                alert('Your cart is empty. Please add items before proceeding to checkout.');
+            } 
+            else {
+                alert('Proceeding to checkout...');
+                cartService.checkout();
+            }
         }
     </script>
 }

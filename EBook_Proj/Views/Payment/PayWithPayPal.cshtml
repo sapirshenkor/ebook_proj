@@ -1,0 +1,70 @@
+﻿<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=ARCWbM6Trezgse5OlsI69kO1UDok0ij4poClYkxZswtPxtAQGdnBWSbGlJC5ud4JLzDgXtJTDF5jmwCQ&currency=USD"></script>
+
+<div class="payment-container">
+    <h2>PayPal Payment</h2>
+
+    <div class="order-summary">
+        <h3>Order Total: $@ViewBag.CartTotal</h3>
+    </div>
+
+    <!-- PayPal button container -->
+    <div id="paypal-button-container"></div>
+</div>
+
+@section Scripts{
+    <script>
+        var cartService= new CartService();
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                let amount = '@ViewBag.CartTotal';
+                console.log('Original amount:', amount);
+                amount = parseFloat(amount).toFixed(2);
+                console.log('Creating order for amount:', amount);
+                
+                // This function sets up the details of the transaction
+                return actions.order.create({
+                    intent: "CAPTURE",
+                    purchase_units: [{
+                        amount: {
+                            currency_code: "USD",
+                            value: amount
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                // This function captures the funds from the transaction
+                return actions.order.capture().then(function(details) {
+                    // Get cart data
+                    const cart = cartService.getCart();
+    
+                    // Send to your server
+                    return fetch('/Payment/ProcessPayPalPayment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cart)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.success) {
+                                // Clear cart and redirect
+                                cartService.clearCart();
+                                window.location.href = '/Payment/PaymentSuccess';
+                            } else {
+                                alert('Payment failed. Please try again.');
+                            }
+                        });
+                });
+            },
+            // Handle errors
+            onError: function(err) {
+                console.error('PayPal Error:', err);
+                alert('There was an error with your payment. Please try again.');
+            }
+        }).render('#paypal-button-container');
+
+    </script>
+}
