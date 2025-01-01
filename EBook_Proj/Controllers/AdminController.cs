@@ -13,51 +13,98 @@ public class AdminController : Controller
     {
         _context = context;
     }
-    // GET
+
     public IActionResult AdminPage()
     {
         return View();
     }
-
-    public IActionResult ShowUsers()
+    
+    [HttpGet]
+    public async Task<IActionResult> ShowUsers()
     {
-        var AllUsers = _context.Users.ToList();
+        var AllUsers =await _context.Users.ToListAsync();
         return View(AllUsers);
     }
 
-    public IActionResult ShowBooks()
+    [HttpGet]
+    public async Task<IActionResult> ShowBooks()
     {
-        var AllBooks = _context.Books.ToList();
+        var AllBooks =await _context.Books.ToListAsync();
         return View(AllBooks);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ShowReviews()
+    {
+        var allRev = await _context.SiteReview.ToListAsync();
+        return View(allRev);
+    }
+
     [HttpPost]
-    public async Task<IActionResult> AddBook(Books book)
+    public async Task<IActionResult> AddBook([FromForm] Books book)
     {
         if (ModelState.IsValid)
         {
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
-            return RedirectToAction("ShowBooks");
+            return Json(new { success = true });
         }
-        return RedirectToAction("AdminPage");
+        return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
     }
 
     [HttpPost]
-    public async Task<IActionResult> DeleteBook(Books book)
+    public async Task<IActionResult> DeleteBook(int BookID)
     {
-        var deleteBook = await _context.Books.FindAsync(book.BookID);
-        if (deleteBook == null)
+        var book = await _context.Books.FindAsync(BookID);
+        if (book == null)
+        {
+            return Json(new { success = false, message = "Book not found" });
+        }
+        
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetBookDetails(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book == null)
         {
             return NotFound();
         }
-        
-        _context.Books.Remove(deleteBook);
-        await _context.SaveChangesAsync();
-        return RedirectToAction("ShowBooks");
+        return Json(book);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditBook(int id, [FromForm] Books book)
+    {
+        if (id != book.BookID)
+        {
+            return Json(new { success = false, message = "ID mismatch" });
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                _context.Update(book);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BookExists(book.BookID))
+                    return Json(new { success = false, message = "Book not found" });
+                throw;
+            }
+        }
+        return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
     }
     
-    
-    
-   
+    private bool BookExists(int id)
+    {
+        return _context.Books.Any(e => e.BookID == id);
+    }
 }
