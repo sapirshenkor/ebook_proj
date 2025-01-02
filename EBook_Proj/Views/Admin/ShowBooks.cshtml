@@ -1,0 +1,391 @@
+﻿@model IEnumerable<EBook_Proj.Models.Books>
+
+<div class="mb-3">
+    <a asp-controller="Admin" asp-action="AdminPage" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Books Management</h3>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBookModal">
+                <i class="bi bi-plus-circle"></i> Add New Book
+            </button>
+        </div>
+        <div class="mb-3 row">
+            <div class="col-md-3">
+                <input type="text" id="searchString" class="form-control" placeholder="Search books...">
+            </div>
+            <div class="col-md-2">
+                <select id="genre" class="form-control">
+                    <option value="">All Genres</option>
+                    @{
+                        var genres = Model.Where(b => !string.IsNullOrEmpty(b.Genre))
+                            .Select(b => b.Genre)
+                            .Distinct()
+                            .OrderBy(g => g);
+                        foreach (var genre in genres)
+                        {
+                            <option value="@genre">@genre</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="author" class="form-control">
+                    <option value="">All Authors</option>
+                    @{
+                        var authors = Model.Where(b => !string.IsNullOrEmpty(b.Author))
+                            .Select(b => b.Author)
+                            .Distinct()
+                            .OrderBy(a => a);
+                        foreach (var author in authors)
+                        {
+                            <option value="@author">@author</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="priceSort" class="form-control">
+                    <option value="">Sort by Price</option>
+                    <option value="asc">Price Low to High</option>
+                    <option value="desc">Price High to Low</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button id="resetFilters" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Cover</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Genre</th>
+                    <th scope="col">Prices</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var book in Model)
+                {
+                    <tr>
+                        <td>@book.BookID</td>
+                        <td>
+                            <img src="@book.BookCover" alt="@book.Title" class="img-thumbnail" style="max-height: 50px;">
+                        </td>
+                        <td>
+                            <strong>@book.Title</strong>
+                            <small class="d-block text-muted">@book.Publisher</small>
+                        </td>
+                        <td>@book.Author</td>
+                        <td>@book.Genre</td>
+                        <td>
+                            <div>Buy:
+                                @if (book.Discount != 0)
+                                {
+                                    <span class="text-decoration-line-through">@book.BuyingPrice.ToString("F2")</span>
+                                    <span class="text-success">
+                                            @((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
+                                        </span>
+                                }
+                                else
+                                {
+                                    @book.BuyingPrice.ToString("F2")
+                                }
+                            </div>
+                            <div>Borrow:
+                                @if (book.Discount != 0)
+                                {
+                                    <span class="text-decoration-line-through">@book.BorrowPrice.ToString("F2")</span>
+                                    <span class="text-success">
+                                            @((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
+                                        </span>
+                                }
+                                else
+                                {
+                                    @book.BorrowPrice.ToString("F2")
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div>Available Copies: @book.BorrowCount</div>
+                            <div class="small text-muted">@book.PageCount pages</div>
+                        </td>
+                        <td>
+                            <div>Discount: @book.Discount%</div>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-warning" title="Edit" onclick="openEditModal(@book.BookID)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger" title="Delete"
+                                        onclick="deleteBook(@book.BookID)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Book Modal -->
+<div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBookModalLabel">Add New Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBookForm">
+                    <input type="hidden" id="BookID" name="BookID" value="0" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Title" class="form-label">Book Title</label>
+                                <input type="text" class="form-control" id="Title" name="Title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Author" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="Author" name="Author" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Publisher" class="form-label">Publisher</label>
+                                <input type="text" class="form-control" id="Publisher" name="Publisher">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PublicationDate" class="form-label">Publication Date</label>
+                                <input type="date" class="form-control" id="PublicationDate" name="PublicationDate">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Genre" class="form-label">Genre</label>
+                                <input type="text" class="form-control" id="Genre" name="Genre">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="AgeLimit" class="form-label">Age Limit</label>
+                                <input type="number" class="form-control" id="AgeLimit" name="AgeLimit" min="0" max="100">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="Description" class="form-label">Description</label>
+                                <textarea class="form-control" id="Description" name="Description" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BuyingPrice" class="form-label">Buying Price</label>
+                                <input type="number" class="form-control" id="BuyingPrice" name="BuyingPrice" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BorrowPrice" class="form-label">Borrow Price</label>
+                                <input type="number" class="form-control" id="BorrowPrice" name="BorrowPrice" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BorrowCount" class="form-label">Available Copies</label>
+                                <input type="number" class="form-control" id="BorrowCount" name="BorrowCount" value="3" min="0" max="10">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PageCount" class="form-label">Page Count</label>
+                                <input type="number" class="form-control" id="PageCount" name="PageCount" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Discount" class="form-label">Discount (%)</label>
+                                <input type="number" class="form-control" id="Discount" name="Discount"
+                                       min="0" max="100" value="0" step="1">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="BookCover" class="form-label">Book Cover URL</label>
+                                <input type="url" class="form-control" id="BookCover" name="BookCover"
+                                       placeholder="https://example.com/book-cover.jpg">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save Book</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+
+    <script>
+        $(document).ready(function() {
+            // Form submission handler
+            $('#addBookForm').on('submit', function(e) {
+                e.preventDefault();
+                const bookId = $('#BookID').val();
+                const url = bookId === "0" ? '/Admin/AddBook' : `/Admin/EditBook/${bookId}`;
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $('#addBookModal').modal('hide');
+                        window.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('There was an error saving the book. Please try again.');
+                    }
+                });
+            });
+
+            // Reset form when modal is closed
+            $('#addBookModal').on('hidden.bs.modal', function() {
+                $('#addBookForm')[0].reset();
+                $('#BookID').val('0');
+                $('#addBookModalLabel').text('Add New Book');
+            });
+
+            // Filter functionality
+            let searchTimer;
+            const MIN_CHARS = 2;
+
+            function filterTable() {
+                const searchString = $('#searchString').val().toLowerCase().trim();
+                const genre = $('#genre').val().toLowerCase();
+                const priceSort = $('#priceSort').val();
+                const author = $('#author').val().toLowerCase();
+
+                const rows = Array.from($('tbody tr'));
+
+                rows.forEach(row => {
+                    const title = $(row).find('td:nth-child(3) strong').text().toLowerCase();
+                    const bookAuthor = $(row).find('td:nth-child(4)').text().toLowerCase();
+                    const bookGenre = $(row).find('td:nth-child(5)').text().toLowerCase();
+
+                    const matchesSearch = !searchString ||
+                        title.includes(searchString) ||
+                        bookAuthor.includes(searchString);
+                    const matchesGenre = !genre || bookGenre === genre;
+                    const matchesAuthor = !author || bookAuthor === author;
+
+                    $(row).toggle(matchesSearch && matchesGenre && matchesAuthor);
+                });
+
+                if (priceSort) {
+                    const sortedRows = rows.sort((a, b) => {
+                        const priceA = parseFloat($(a).find('td:nth-child(6)').text().replace(/[^0-9.-]+/g, ''));
+                        const priceB = parseFloat($(b).find('td:nth-child(6)').text().replace(/[^0-9.-]+/g,''));
+                        return priceSort === 'asc' ? priceA - priceB : priceB - priceA;
+                    });
+                    $('tbody').append(sortedRows);
+                }
+            }
+
+            $('#searchString').on('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(filterTable, 300);
+            });
+
+            $('#genre, #priceSort, #author').on('change', filterTable);
+
+            $('#resetFilters').click(function() {
+                $('#searchString').val('');
+                $('#priceSort').val('');
+                $('#genre').val('');
+                $('#author').val('');
+                $('tbody tr').show();
+            });
+        });
+
+        // Edit modal handler
+        function openEditModal(bookId) {
+            $.ajax({
+                url: '/Admin/GetBookDetails',
+                type: 'GET',
+                data: { id: bookId },
+                success: function(book) {
+                    $('#BookID').val(book.bookID);
+                    $('#Title').val(book.title);
+                    $('#Author').val(book.author);
+                    $('#Publisher').val(book.publisher);
+                    $('#PublicationDate').val(book.publicationDate?.split('T')[0]);
+                    $('#Genre').val(book.genre);
+                    $('#AgeLimit').val(book.ageLimit);
+                    $('#Description').val(book.description);
+                    $('#BuyingPrice').val(book.buyingPrice);
+                    $('#BorrowPrice').val(book.borrowPrice);
+                    $('#BorrowCount').val(book.borrowCount);
+                    $('#PageCount').val(book.pageCount);
+                    $('#Discount').val(book.discount);
+                    $('#BookCover').val(book.bookCover);
+
+                    $('#addBookModalLabel').text('Edit Book');
+                    $('#addBookModal').modal('show');
+                },
+                error: function(error) {
+                    console.error('Error fetching book details:', error);
+                    alert('Error loading book details. Please try again.');
+                }
+            });
+        }
+
+        // Delete book handler
+        function deleteBook(bookId) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                $.ajax({
+                    url: '/Admin/DeleteBook',
+                    type: 'POST',
+                    data: { BookID: bookId },
+                    success: function() {
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        console.error('Error deleting book:', error);
+                        alert('Error deleting book. Please try again.');
+                    }
+                });
+            }
+        }
+    </script>
+}

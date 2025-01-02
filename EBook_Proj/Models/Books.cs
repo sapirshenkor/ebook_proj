@@ -61,5 +61,7 @@ namespace EBook_Proj.Models
         [DisplayName("Book Cover")]
         [DataType(DataType.ImageUrl)]
         public string BookCover { get; set; }
+        
+        public int Discount { get; set; }
     }
 }

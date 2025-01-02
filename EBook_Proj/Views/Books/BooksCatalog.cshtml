@@ -25,8 +25,8 @@
                                  data-title="@book.Title"
                                  data-author="@book.Author"
                                  data-description="@book.Description"
-                                 data-buy-price="@book.BuyingPrice"
-                                 data-borrow-price="@book.BorrowPrice"
+                                 data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                 data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
                                  data-genre="@book.Genre"
                                  data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
                                  data-cover="@book.BookCover">
@@ -53,8 +53,26 @@
                                     }
                                     <div class="d-flex flex-column">
                                         <div class="mb-2">
-                                            <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
-                                            <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                            @if (book.Discount != 0)
+                                            {
+                                                <div>
+                                                    <span class="badge bg-primary me-2 text-decoration-line-through">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                                    <span class="badge bg-danger">
+                                                        Sale: $@((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                    <span class="badge bg-danger">
+                                                        Sale: $@((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
+                                                    </span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                                <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                            }
                                         </div>
                                         @if (book.AgeLimit > 0)
                                         {
@@ -71,18 +89,19 @@
                                                     <a class="btn btn-sm btn-success add-to-cart"
                                                        data-id="@book.BookID"
                                                        data-title="@book.Title"
-                                                       data-buy-price="@book.BuyingPrice"
-                                                       data-borrow-price="@book.BorrowPrice"
+                                                       data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                                       data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
                                                        data-cover="@book.BookCover"
                                                        data-type="borrow">Borrow</a>
                                                 }
                                                 <a class="btn btn-sm btn-primary add-to-cart" 
                                                    data-id="@book.BookID"
                                                    data-title="@book.Title"
-                                                   data-buy-price="@book.BuyingPrice"
-                                                   data-borrow-price="@book.BorrowPrice"
+                                                   data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                                   data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
                                                    data-cover="@book.BookCover"
-                                                   data-type="buy">>Buy</a>
+                                                   data-type="buy">Buy
+                                                    </a>
                                             </div>
                                         </div>
                                     </div>
