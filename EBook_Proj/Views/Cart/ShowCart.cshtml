@@ -83,14 +83,14 @@
 
 @section Scripts {
     <script>
-        const cartService = new CartService();
+        //const cartService = new CartService();
         document.addEventListener('DOMContentLoaded', function() {
             displayCart();
         });
         
 
         function displayCart() {
-            const cart = cartService.getCart();
+            const cart = window.cartService.getCart();
             const cartContainer = document.querySelector('#cartItems .card-body');
             const template = document.getElementById('cartItemTemplate');
             let subtotal = 0;
@@ -139,7 +139,7 @@
         function updateCartItemQuantity(button, quantity) {
             const cartItem = button.closest('.cart-item');
             const title = cartItem.querySelector('.cart-item-title').textContent;
-            const cart = cartService.getCart();
+            const cart = window.cartService.getCart();
             const item = cart.find(i => i.title === title);
             if (item) {
                 item.quantity = quantity;
@@ -152,12 +152,12 @@
 
         function checkout() {
             //check if there is items in the cart
-            if (cartService.getCart() === null || cartService.getCart().length === 0) {
+            if (window.cartService.getCart() === null || window.cartService.getCart().length === 0) {
                 alert('Your cart is empty. Please add items before proceeding to checkout.');
             } 
             else {
                 alert('Proceeding to checkout...');
-                cartService.checkout();
+                window.cartService.checkout();
             }
         }
     </script>

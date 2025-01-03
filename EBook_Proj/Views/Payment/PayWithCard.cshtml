@@ -33,7 +33,7 @@
 </div>
 @section Scripts {
     <script>
-    const cartService = new CartService();
+    //const cartService = new CartService();
 
     document.addEventListener('DOMContentLoaded', () => {
     
@@ -43,7 +43,7 @@
         e.preventDefault();
         
         // Simulate payment processing
-        const cart = cartService.getCart();
+        const cart = window.cartService.getCart();
         
         try {
             const response = await fetch('/Payment/ProcessCardPayment', {
@@ -57,7 +57,7 @@
             const result = await response.json();
             
             if(result.success) {
-                cartService.clearCart();
+                window.cartService.clearCart();
                 window.location.href = '/Payment/PaymentSuccess';
             } else {
                 alert('Payment failed. Please try again.');
