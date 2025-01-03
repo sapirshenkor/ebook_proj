@@ -1,4 +1,5 @@
-﻿@model SiteReviewModel
+﻿@model UserPageViewModel
+
 <div class="container">
     <h2 class="welcome-header">Welcome, @Context.Session.GetString("FirstName") @Context.Session.GetString("LastName")!</h2>
 
@@ -10,17 +11,23 @@
                 <h3 class="section-title">My Purchased Books</h3>
                 <div class="books-scroll">
                     <div class="book-grid">
-                        @for (int i = 0; i < 8; i++)
+                        @if (Model.OrderedBooks.OwnedBooks != null && Model.OrderedBooks.OwnedBooks.Any())
                         {
-                            <div class="book-card purchased-book">
-                                <img src="https://via.placeholder.com/200x300" class="book-image" alt="Book Cover">
-                                <div class="book-info">
-                                    <h5 class="book-title">Book Title</h5>
-                                    <p class="book-author">Author Name</p>
-                                    <div class="purchase-date">Purchased: 01/01/2024</div>
-                                    <a href="#" class="btn btn-primary btn-sm">Read Now</a>
+                            @foreach (var book in Model.OrderedBooks.OwnedBooks)
+                            {
+                                <div class="book-card purchased-book">
+                                    <img src="@book.BookCover" class="book-image" alt="Book Cover">
+                                    <div class="book-info">
+                                        <h5 class="book-title">@book.Title</h5>
+                                        <p class="book-author">@book.Author</p>
+                                        <a href="#" class="btn btn-primary btn-sm">Read Now</a>
+                                    </div>
                                 </div>
-                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No purchased books found.</p>
                         }
                     </div>
                 </div>
@@ -31,18 +38,23 @@
                 <h3 class="section-title">My Borrowed Books</h3>
                 <div class="books-scroll">
                     <div class="book-grid">
-                        @for (int i = 0; i < 4; i++)
+                        @if (Model.OrderedBooks.BorrowedBooks != null && Model.OrderedBooks.BorrowedBooks.Any())
                         {
-                            <div class="book-card borrowed-book">
-                                <img src="https://via.placeholder.com/200x300" class="book-image" alt="Book Cover">
-                                <div class="book-info">
-                                    <h5 class="book-title">Book Title</h5>
-                                    <p class="book-author">Author Name</p>
-                                    <div class="borrow-date">Due Date: 01/30/2024</div>
-                                    <div class="borrow-date">Return Date: 01/30/2025</div>
-                                    <a href="#" class="btn btn-success btn-sm">Read Now</a>
+                            @foreach (var book in Model.OrderedBooks.BorrowedBooks)
+                            {
+                                <div class="book-card borrowed-book">
+                                    <img src="@book.BookCover" class="book-image" alt="Book Cover">
+                                    <div class="book-info">
+                                        <h5 class="book-title">@book.Title</h5>
+                                        <p class="book-author">@book.Author</p>
+                                        <a href="#" class="btn btn-success btn-sm">Read Now</a>
+                                    </div>
                                 </div>
-                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No borrowed books found.</p>
                         }
                     </div>
                 </div>
@@ -63,7 +75,6 @@
         </div>
     </div>
 </div>
-
 <!-- Button trigger modal -->
 <button type="button" class="btn bg-white rounded-pill shadow-sm border-0"
         data-bs-toggle="modal"
@@ -72,6 +83,8 @@
     <i class="bi bi-pencil-square me-2"></i>
     Leave Feedback
 </button>
+
+<!-- Review Modal -->
 <div class="modal fade" id="reviewSiteModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -81,10 +94,19 @@
             </div>
             <form asp-controller="User" asp-action="SiteReview" method="post">
                 <div class="modal-body">
-                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    @{
+        var userId = Context.Session.GetInt32("UserID");
+        if (userId.HasValue)
+        {
+            <input type="hidden" asp-for="SiteReview.UserID" value="@userId.Value" />
+        }
+    }
+                    
                     <div class="mb-3">
-                        <label asp-for="Rate" class="form-label">Rating</label>
-                        <select asp-for="Rate" class="form-select" required>
+                        <label asp-for="SiteReview.Rate" class="form-label">Rating</label>
+                        <select asp-for="SiteReview.Rate" class="form-select">
                             <option value="">Select a rating...</option>
                             <option value="5">5 - Excellent</option>
                             <option value="4">4 - Very Good</option>
@@ -92,14 +114,16 @@
                             <option value="2">2 - Fair</option>
                             <option value="1">1 - Poor</option>
                         </select>
-                        <span asp-validation-for="Rate" class="text-danger"></span>
+                        <span asp-validation-for="SiteReview.Rate" class="text-danger"></span>
                     </div>
+                    
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label">Description</label>
-                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <label asp-for="SiteReview.Description" class="form-label">Description</label>
+                        <textarea asp-for="SiteReview.Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="SiteReview.Description" class="text-danger"></span>
                     </div>
                 </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Submit Review</button>
@@ -108,3 +132,37 @@
         </div>
     </div>
 </div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Thank You!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Your review has been submitted successfully!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        @if (TempData["ReviewSuccess"] != null)
+        {
+            <text>
+            $(document).ready(function() {
+                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                setTimeout(function() {
+                    successModal.hide();
+                }, 3000);
+            });
+            </text>
+        }
+    </script>
+}

@@ -23,12 +23,30 @@
                     <div class="d-grid gap-2">
                         @if (Model.BorrowCount > 0)
                         {
-                            <a asp-action="Borrow" asp-route-id="@Model.BookID" class="btn btn-success">
-                                Borrow for $@Model.BorrowPrice.ToString("F2")
+                            <a class="btn btn-success">
+                                Borrow for
+                                @if(Model.Discount != 0)
+                                {
+                                    <s>$@Model.BorrowPrice.ToString("F2")</s>
+                                    <span>$@((Model.BorrowPrice - (Model.BorrowPrice * Model.Discount / 100)).ToString("F2"))</span>
+                                }
+                                else
+                                {
+                                    <span>$@Model.BorrowPrice.ToString("F2")</span>
+                                }
                             </a>
                         }
-                        <a asp-action="Buy" asp-route-id="@Model.BookID" class="btn btn-primary">
-                            Buy for $@Model.BuyingPrice.ToString("F2")
+                        <a class="btn btn-primary">
+                            Buy for
+                            @if(Model.Discount != 0)
+                            {
+                                <s>$@Model.BuyingPrice.ToString("F2")</s>
+                                <span>$@((Model.BuyingPrice - (Model.BuyingPrice * Model.Discount / 100)).ToString("F2"))</span>
+                            }
+                            else
+                            {
+                                <span>$@Model.BuyingPrice.ToString("F2")</span>
+                            }
                         </a>
                     </div>
                 </div>
@@ -87,3 +105,49 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            cartService.updateCartCount();
+            
+            const buyButton = document.querySelector('.btn-primary');
+            const borrowButton = document.querySelector('.btn-success');
+            
+            if (buyButton) {
+                buyButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const discountedBuyPrice = @(Model.Discount != 0 ? 
+                        $"{Model.BuyingPrice - (Model.BuyingPrice * Model.Discount / 100)}" : 
+                        $"{Model.BuyingPrice}");
+                    const discountedBorrowPrice = @(Model.Discount != 0 ? 
+                        $"{Model.BorrowPrice - (Model.BorrowPrice * Model.Discount / 100)}" : 
+                        $"{Model.BorrowPrice}");
+                    addToCart('@Model.BookID', '@Model.Title', discountedBuyPrice, discountedBorrowPrice, '@Model.BookCover', 'buy');
+                });
+            }
+            
+            if (borrowButton) {
+                borrowButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const discountedBuyPrice = @(Model.Discount != 0 ? 
+                        $"{Model.BuyingPrice - (Model.BuyingPrice * Model.Discount / 100)}" : 
+                        $"{Model.BuyingPrice}");
+                    const discountedBorrowPrice = @(Model.Discount != 0 ? 
+                        $"{Model.BorrowPrice - (Model.BorrowPrice * Model.Discount / 100)}" : 
+                        $"{Model.BorrowPrice}");
+                    addToCart('@Model.BookID', '@Model.Title', discountedBuyPrice, discountedBorrowPrice, '@Model.BookCover', 'borrow');
+                });
+            }
+        });
+
+        function addToCart(bookId, title, buyPrice, borrowPrice, cover, type) {
+            cartService.addToCart({
+                id: bookId,
+                title: title,
+                buyPrice: buyPrice,
+                borrowPrice: borrowPrice,
+                cover: cover
+            }, type);
+        }
+    </script>
+}

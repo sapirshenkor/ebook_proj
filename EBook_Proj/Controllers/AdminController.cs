@@ -15,13 +15,23 @@ public class AdminController : Controller
     }
 
     public IActionResult AdminPage()
-    {
+    { 
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         return View();
     }
     
     [HttpGet]
     public async Task<IActionResult> ShowUsers()
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         var AllUsers =await _context.Users.ToListAsync();
         return View(AllUsers);
     }
@@ -29,6 +39,11 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> ShowBooks()
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         var AllBooks =await _context.Books.ToListAsync();
         return View(AllBooks);
     }
@@ -36,13 +51,37 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> ShowReviews()
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         var allRev = await _context.SiteReview.ToListAsync();
         return View(allRev);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ShowOrders()
+    {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
+        var orders = await _context.Orders
+            .Include(o => o.OrderDetails)
+            .ToListAsync();
+        return View(orders);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddBook([FromForm] Books book)
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         if (ModelState.IsValid)
         {
             _context.Books.Add(book);
@@ -55,6 +94,11 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteBook(int BookID)
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         var book = await _context.Books.FindAsync(BookID);
         if (book == null)
         {
@@ -69,6 +113,11 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> GetBookDetails(int id)
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         var book = await _context.Books.FindAsync(id);
         if (book == null)
         {
@@ -80,6 +129,11 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> EditBook(int id, [FromForm] Books book)
     {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+        if (isAdmin == "False" || isAdmin == null)
+        {
+            return RedirectToAction("Login", "User");
+        }
         if (id != book.BookID)
         {
             return Json(new { success = false, message = "ID mismatch" });
