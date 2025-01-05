@@ -86,6 +86,7 @@ public class BooksController: Controller
 
     public async Task<IActionResult> BookDetails(int id)
     {
+        
         var book= await _context.Books.FirstOrDefaultAsync(b=>b.BookID == id);
         if (book == null)
         {
@@ -93,4 +94,42 @@ public class BooksController: Controller
         }
         return View(book);
     }
+    [HttpGet]
+    public IActionResult Download(string format)
+    {
+        byte[] fileBytes;
+        string contentType;
+        string fileName;
+
+        // Create empty file bytes - just a small placeholder
+        fileBytes = new byte[] { 0x0 };
+
+        switch (format.ToLower())
+        {
+            case "epub":
+                contentType = "application/epub+zip";
+                fileName = $"book.epub";
+                break;
+            case "fb2":
+                contentType = "application/xml";
+                fileName = $"book.fb2";
+                break;
+            case "mobi":
+                contentType = "application/x-mobipocket-ebook";
+                fileName = $"book.mobi";
+                break;
+            case "pdf":
+                contentType = "application/pdf";
+                fileName = $"book.pdf";
+                break;
+            default:
+                return BadRequest("Unsupported format");
+        }
+
+        return File(fileBytes, contentType, fileName);
+    
+    }
+
+    
+    
 }
