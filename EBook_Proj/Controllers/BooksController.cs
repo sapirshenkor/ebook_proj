@@ -87,12 +87,40 @@ public class BooksController: Controller
     public async Task<IActionResult> BookDetails(int id)
     {
         
+        
+        var reviews = await _context.BookReview
+            .Include(r => r.User)  // Include the User navigation property
+            .Where(r => r.BookID == id)
+            .ToListAsync();
         var book= await _context.Books.FirstOrDefaultAsync(b=>b.BookID == id);
+        List<BooksUserModel> booksUserModels = new List<BooksUserModel>();
         if (book == null)
         {
             return NotFound();
         }
-        return View(book);
+        List<BooksUserModel> booksusers = new List<BooksUserModel>();
+
+        if (HttpContext.Session.GetString("CustomerID") != null)
+        {
+            var userIdString = HttpContext.Session.GetString("CustomerID");
+            if (!string.IsNullOrEmpty(userIdString))
+            {
+                var customerID = int.Parse(userIdString);
+                booksusers = await _context.BooksUser
+                    .Where(b => b.UserId == customerID)
+                    .ToListAsync();
+            }
+        }
+
+        var bookdetails = new BookDetailsModal
+        {
+            Reviews = reviews,
+            Book = book,
+            BooksUser = booksusers
+        };
+        return View(bookdetails);
+
+        
     }
     [HttpGet]
     public IActionResult Download(string format)
@@ -129,7 +157,20 @@ public class BooksController: Controller
         return File(fileBytes, contentType, fileName);
     
     }
+    [HttpPost]
+    public async Task<IActionResult> AddReview(BookReview review)
+    {
+        ModelState.Remove("User");
 
+        if (ModelState.IsValid)
+        {
+            review.UserID = int.Parse(HttpContext.Session.GetString("CustomerID"));
+            _context.BookReview.Add(review);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(BookDetails), new { id = review.BookID });
+        }
+        return RedirectToAction(nameof(BookDetails), new { id = review.BookID });
+    }
     
     
 }
