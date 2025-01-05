@@ -104,6 +104,11 @@
                                                         </button>
                                                     }
                                                 }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm btn-primary btn-warning text-white"
+                                                       onclick="event.stopPropagation(); addToWaitingList(@book.BookID)">Waiting List</a>
+                                                }
                                                 <a class="btn btn-sm btn-primary add-to-cart" 
                                                    data-id="@book.BookID"
                                                    data-title="@book.Title"
@@ -131,6 +136,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="waitingListSuccessModal" tabindex="-1" aria-labelledby="waitingListSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="waitingListSuccessModalLabel">Success!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>You have been successfully added to the waiting list. We'll notify you when the book becomes available.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -333,7 +354,28 @@
                 );
             });
         });
-    
-    
+
+        function addToWaitingList(bookId) {
+            $.post('/Books/AddToWaitingList', { id: bookId })
+                .done(function(response) {
+                    const modal = document.getElementById('waitingListSuccessModal');
+                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+
+                    if(response.success) {
+                        modal.querySelector('.modal-title').textContent = 'Success!';
+                        modal.querySelector('.modal-body p').textContent = 'You have been successfully added to the waiting list. We\'ll notify you when the book becomes available.';
+                    } else if(response.redirect) {
+                        window.location.href = response.redirect;
+                    } else {
+                        modal.querySelector('.modal-title').textContent = 'Already in Waiting List';
+                        modal.querySelector('.modal-body p').textContent = 'You are already in the waiting list for this book.';
+                    }
+
+                    modalInstance.show();
+                })
+                .fail(function() {
+                    alert('Failed to add to waiting list. Please try again.');
+                });
+        }
     </script>
 }

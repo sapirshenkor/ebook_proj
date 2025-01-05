@@ -1,4 +1,5 @@
-﻿using EBook_Proj.DATA;
+﻿using System.Net;
+using EBook_Proj.DATA;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EBook_Proj.Models;
@@ -170,6 +171,33 @@ public class BooksController: Controller
             return RedirectToAction(nameof(BookDetails), new { id = review.BookID });
         }
         return RedirectToAction(nameof(BookDetails), new { id = review.BookID });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddToWaitingList(int id)
+    {
+        var userID = HttpContext.Session.GetString("CustomerID");
+        if (string.IsNullOrEmpty(userID))
+        {
+            return Json(new { success = false, redirect = "/User/Login" });
+        }
+        var currentDate = DateTime.Now;
+        var email = HttpContext.Session.GetString("Email");
+        var bookInWaitingList =await _context.WaitingList.FirstOrDefaultAsync(w => w.BookID == id && w.UserID == int.Parse(userID));
+        if (bookInWaitingList == null)
+        {
+            var waitingList = new WaitingListModel()
+            {
+                BookID = id,
+                UserID = int.Parse(userID),
+                Email = email,
+                Date = currentDate
+            };
+            await _context.WaitingList.AddAsync(waitingList);
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+        return Json(new { success = false });
     }
     
     
