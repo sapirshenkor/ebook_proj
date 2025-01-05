@@ -107,7 +107,7 @@
                     </div>
                 }
 
-                @if (Context.Session.GetString("Email") != null && Model.BooksUser.Any(bu => bu.BookId == Model.Book.BookID))
+                @if (Context.Session.GetString("Email") != null && Model.BooksUser.Any(bu => bu.BookID == Model.Book.BookID))
                 {
                     <div class="add-review-section mt-4">
                         <h6>Add Your Review</h6>
