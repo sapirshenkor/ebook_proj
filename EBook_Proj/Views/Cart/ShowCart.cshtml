@@ -90,6 +90,8 @@
         
 
         function displayCart() {
+            //window.cartService.displayCart()
+            
             const cart = cartService.getCart();
             const cartContainer = document.querySelector('#cartItems .card-body');
             const template = document.getElementById('cartItemTemplate');
@@ -118,6 +120,8 @@
             });
 
             updateOrderSummary(subtotal);
+                    
+             
         }
         function removeFromCart(bookId) {
             cartService.removeFromCart(bookId);
