@@ -1,7 +1,7 @@
-﻿@model EBook_Proj.Models.Books
+﻿@model EBook_Proj.Models.BookDetailsModal
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Book.Title;
 }
 
 <div class="container mt-5">
@@ -9,9 +9,9 @@
         <!-- Book Cover and Actions -->
         <div class="col-md-4">
             <div class="card">
-                @if (!string.IsNullOrEmpty(Model.BookCover))
+                @if (!string.IsNullOrEmpty(Model.Book.BookCover))
                 {
-                    <img src="@Model.BookCover" class="card-img-top" alt="@Model.Title" style="height: 400px; object-fit: cover;">
+                    <img src="@Model.Book.BookCover" class="card-img-top" alt="@Model.Book.Title" style="height: 400px; object-fit: cover;">
                 }
                 else
                 {
@@ -19,19 +19,7 @@
                         <i class="bi bi-book" style="font-size: 8rem;"></i>
                     </div>
                 }
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        @if (Model.BorrowCount > 0)
-                        {
-                            <a asp-action="Borrow" asp-route-id="@Model.BookID" class="btn btn-success">
-                                Borrow for $@Model.BorrowPrice.ToString("F2")
-                            </a>
-                        }
-                        <a asp-action="Buy" asp-route-id="@Model.BookID" class="btn btn-primary">
-                            Buy for $@Model.BuyingPrice.ToString("F2")
-                        </a>
-                    </div>
-                </div>
+                
             </div>
         </div>
 
@@ -40,33 +28,33 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a asp-action="BooksCatalog">Books</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Book.Title</li>
                 </ol>
             </nav>
 
-            <h1 class="mb-3">@Model.Title</h1>
-            <h4 class="text-muted mb-4">by @Model.Author</h4>
+            <h1 class="mb-3">@Model.Book.Title</h1>
+            <h4 class="text-muted mb-4">by @Model.Book.Author</h4>
 
             <div class="row mb-4">
                 <div class="col-md-6">
                     <dl class="row">
                         <dt class="col-sm-4">Publisher</dt>
-                        <dd class="col-sm-8">@Model.Publisher</dd>
+                        <dd class="col-sm-8">@Model.Book.Publisher</dd>
 
                         <dt class="col-sm-4">Published</dt>
-                        <dd class="col-sm-8">@Model.PublicationDate.ToString("d")</dd>
+                        <dd class="col-sm-8">@Model.Book.PublicationDate.ToString("d")</dd>
 
                         <dt class="col-sm-4">Genre</dt>
-                        <dd class="col-sm-8">@Model.Genre</dd>
+                        <dd class="col-sm-8">@Model.Book.Genre</dd>
 
                         <dt class="col-sm-4">Pages</dt>
-                        <dd class="col-sm-8">@Model.PageCount</dd>
+                        <dd class="col-sm-8">@Model.Book.PageCount</dd>
 
                         <dt class="col-sm-4">Age Limit</dt>
-                        <dd class="col-sm-8">@(Model.AgeLimit > 0 ? $"{Model.AgeLimit}+" : "No age restriction")</dd>
+                        <dd class="col-sm-8">@(Model.Book.AgeLimit > 0 ? $"{Model.Book.AgeLimit}+" : "No age restriction")</dd>
 
                         <dt class="col-sm-4">Available Copies</dt>
-                        <dd class="col-sm-8">@Model.BorrowCount</dd>
+                        <dd class="col-sm-8">@Model.Book.BorrowCount</dd>
                     </dl>
                 </div>
             </div>
@@ -74,16 +62,109 @@
             <!-- Description -->
             <div class="mb-5">
                 <h5 class="mb-3">Description</h5>
-                <p class="lead">@Model.Description</p>
+                <p class="lead">@Model.Book.Description</p>
             </div>
 
-            <!-- Reviews Section (Placeholder) -->
-            <div class="mb-4">
+            <!-- Reviews Section -->
+            <div class="reviews-section mb-4">
                 <h5 class="mb-3">Reviews</h5>
-                <div class="alert alert-info">
-                    Reviews feature coming soon!
-                </div>
+
+                @if (Model.Reviews != null && Model.Reviews.Any())
+                {
+                    <div class="reviews-container">
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="review-card mb-3 p-3 border rounded">
+                                <div class="review-header d-flex justify-content-between align-items-center">
+                                    <div class="user-info">
+                                        <strong>@review.User.FirstName</strong>
+                                    </div>
+                                    <div class="rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= review.Rate)
+                                            {
+                                                <i class="fas fa-star text-warning"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="far fa-star text-warning"></i>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <div class="review-content mt-2">
+                                    <p class="mb-0">@review.Description</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        No reviews yet. Be the first to review this book!
+                    </div>
+                }
+
+                @if (Context.Session.GetString("Email") != null && Model.BooksUser.Any(bu => bu.BookId == Model.Book.BookID))
+                {
+                    <div class="add-review-section mt-4">
+                        <h6>Add Your Review</h6>
+                        <form asp-action="AddReview" asp-controller="Books" method="post">
+                            <input type="hidden" name="BookID" value="@Model.Book.BookID" />
+
+                            <div class="form-group mb-3">
+                                <label>Rating</label>
+                                <div class="rating-input">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <input type="radio" id="star@(i)" name="Rate" value="@i" required />
+                                        <label for="star@(i)">
+                                            <i class="far fa-star"></i>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="reviewDescription">Your Review</label>
+                                <textarea class="form-control" id="reviewDescription" name="Description"
+                                          rows="3" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                }
+                else if (Context.Session.GetString("Email") != null)
+                {
+                    <div class="alert alert-info mt-3">
+                        You need to purchase this book before you can review it.
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        // Convert empty stars to filled ones on rating selection
+        document.querySelectorAll('.rating-input input[type="radio"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const rating = e.target.value;
+                const labels = e.target.parentElement.querySelectorAll('label i');
+                
+                labels.forEach((label, index) => {
+                    if (index < rating) {
+                        label.classList.remove('far');
+                        label.classList.add('fas');
+                    } else {
+                        label.classList.remove('fas');
+                        label.classList.add('far');
+                    }
+                });
+            });
+        });
+    </script>
+}

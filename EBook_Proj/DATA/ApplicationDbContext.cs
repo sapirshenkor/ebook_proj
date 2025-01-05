@@ -16,5 +16,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<Orders> Orders { get; set; }
     public DbSet<OrderDetails> OrderDetails { get; set; }
     public DbSet<BooksUserModel> BooksUser { get; set; }
+    public DbSet<BookReview> BookReview { get; set; }
 }
 
