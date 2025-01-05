@@ -124,41 +124,51 @@ public class UserController : Controller
 
         try
         {
-            // Get the orders and log the count
-            var orders = await _context.Orders
-                .Where(o => o.CustomerID == int.Parse(customerID))
-                .Select(o => o.OrderID)
-                .ToListAsync();
-        
-            Console.WriteLine($"Found {orders.Count} orders"); // Debug line
-
-            // Get order details and log the count
-            var books = await _context.OrderDetails
-                .Where(od => orders.Contains(od.OrderID))
-                .ToListAsync();
+            //get all books from BookUser for the userPage
+            var allBooks = await _context.BooksUser
+                .Where(b => b.UserID == int.Parse(customerID)).ToListAsync();
             
-            Console.WriteLine($"Found {books.Count} order details"); // Debug line
-
-            var bookIDBuy = books
-                .Where(od => od.BookType == "buy")
+            var bookIDBuy = allBooks
+                .Where(od => od.Type == "buy")
                 .Select(od => od.BookID)
                 .ToList();
             
-            Console.WriteLine($"Found {bookIDBuy.Count} bought books"); // Debug line
+            
 
-            var bookIDBorrow = books
-                .Where(od => od.BookType == "borrow")
+            var bookIDBorrow = allBooks
+                .Where(od => od.Type == "borrow")
                 .Select(od => od.BookID)
                 .ToList();
             
-            Console.WriteLine($"Found {bookIDBorrow.Count} borrowed books"); // Debug line
+            
             HttpContext.Session.SetString("BorrowCount", bookIDBorrow.Count.ToString());
             viewModel.OrderedBooks.OwnedBooks = await _context.Books
                 .Where(b => bookIDBuy.Contains(b.BookID))
                 .ToListAsync();
 
-            viewModel.OrderedBooks.BorrowedBooks = await _context.Books
-                .Where(b => bookIDBorrow.Contains(b.BookID))
+            viewModel.OrderedBooks.BorrowedBooks = await _context.BooksUser.Where(bu => bu.UserID == int.Parse(customerID) && bu.Type == "borrow")
+                .Join(_context.Books,
+                    bu => bu.BookID,
+                    b => b.BookID,
+                    (bu, b) => new BookWithDateModel
+                    {
+                        // Copy all properties from Books with Date 
+                        BookID = b.BookID,
+                        Title = b.Title,
+                        Author = b.Author,
+                        Publisher = b.Publisher,
+                        PublicationDate = b.PublicationDate,
+                        Genre = b.Genre,
+                        AgeLimit = b.AgeLimit,
+                        Description = b.Description,
+                        BuyingPrice = b.BuyingPrice,
+                        BorrowPrice = b.BorrowPrice,
+                        BorrowCount = b.BorrowCount,
+                        PageCount = b.PageCount,
+                        BookCover = b.BookCover,
+                        Discount = b.Discount,
+                        BorrowDate = bu.Date
+                    })
                 .ToListAsync();
         
             return View(viewModel);
@@ -204,6 +214,48 @@ public class UserController : Controller
         return File(fileBytes, contentType, fileName);
     
     }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
+        try 
+        {
+            var userId = HttpContext.Session.GetString("CustomerID");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "User");
+            }
+            var userID = int.Parse(userId);
+
+            var book = await _context.BooksUser
+                .FirstOrDefaultAsync(b => b.BookID == id && b.UserID == userID);
+            
+            if (book == null)
+            {
+                return NotFound();
+            }
+            if (book.Type == "borrow")
+            {
+                var BorrowedBooks =await _context.Books.FirstOrDefaultAsync(b => b.BookID == book.BookID);
+                BorrowedBooks.BorrowCount += 1;
+                await _context.SaveChangesAsync();
+            }
+
+            _context.BooksUser.Remove(book);
+            await _context.SaveChangesAsync();
+    
+            TempData["DeleteSuccess"] = "Book successfully deleted";
+            return RedirectToAction("UserPage", "User");
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            TempData["Error"] = "Failed to delete the book";
+            return RedirectToAction("UserPage", "User");
+        }
+    }
+
     
     // GET
     public IActionResult Index()

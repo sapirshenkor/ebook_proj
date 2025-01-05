@@ -15,5 +15,13 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Ebook_Proj@LAPTOP-GOIPHGSD" uuid="25adde86-946b-4395-a434-292cdf572232">
+      <driver-ref>sqlserver.jb</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>com.jetbrains.jdbc.sqlserver.SqlServerDriver</jdbc-driver>
+      <jdbc-url>Server=LAPTOP-GOIPHGSD;Database=Ebook_Proj;Trusted_Connection=True;TrustServerCertificate=True;</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

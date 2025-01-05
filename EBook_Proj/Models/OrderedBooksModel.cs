@@ -3,5 +3,5 @@
 public class OrderedBooksModel
 {
     public List<Books> OwnedBooks { get; set; } = [];
-    public List<Books> BorrowedBooks { get; set; } = [];
+    public List<BookWithDateModel> BorrowedBooks { get; set; } = [];
 }

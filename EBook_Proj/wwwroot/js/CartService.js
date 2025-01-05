@@ -40,6 +40,11 @@
             alert('This book is already in your cart!');
             return;
         }
+        var countBorrowedBooks = cart.filter(item => item.type === 'borrow').length;
+        if (countBorrowedBooks >= 3 && type === "borrow") {
+            alert('user cannot borrow more than 3 books!');
+            return;
+        }
         const price = type === 'buy' ? parseFloat(book.buyPrice) : parseFloat(book.borrowPrice);
         cart.push({
             bookId: book.id,
@@ -121,7 +126,7 @@
     //checkout process for the cart
     checkout(){
         const cart = this.getCart();
-        
+
         fetch('/Cart/Checkout', {
             method: 'POST',
             headers:{
@@ -134,6 +139,10 @@
                 if(data.success) {
                     // Redirect to payment selection page
                     window.location.href = '/Payment/Select';
+                } else {
+                    
+                    alert(data.message);
+                    
                 }
             })
             .catch(error => {

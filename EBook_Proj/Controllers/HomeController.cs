@@ -29,6 +29,7 @@ public class HomeController : Controller
         // Get all books ordered by newest first, take 8 for the home page
         var viewModel = new HomePageBooksViewModel
         {
+            TotalBooks = await _context.Books.CountAsync(), 
             FeaturedBooks = await _context.Books
                 .OrderByDescending(b => b.PublicationDate)
                 .Take(8)

@@ -3,6 +3,17 @@
 }
 @model EBook_Proj.Models.HomePageBooksViewModel
 
+<!-- Books Counter -->
+<div class="container mt-4 mb-4">
+    <div class="card bg-light shadow-sm">
+        <div class="card-body text-center">
+            <h4 class="mb-0">
+                <i class="fas fa-book me-2"></i>
+                Total Books in Library: @Model.TotalBooks
+            </h4>
+        </div>
+    </div>
+</div>
 
 
 

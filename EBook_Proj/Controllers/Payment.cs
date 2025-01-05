@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EBook_Proj.DATA;
 using EBook_Proj.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace EBook_Proj.Controllers;
@@ -70,15 +71,21 @@ public class Payment: Controller
                 };
                 var booksUser = new BooksUserModel()
                 {
-                    BookId = item.BookId,
-                    UserId = int.Parse(HttpContext.Session.GetString("CustomerID")),
+                    BookID = item.BookId,
+                    UserID = int.Parse(HttpContext.Session.GetString("CustomerID")),
                     Type = item.Type,
                     Date = currentDate
                 };
+                if (item.Type == "borrow")
+                {
+                    var BorrowedBooks =await _context.Books.FirstOrDefaultAsync(b => b.BookID == item.BookId);
+                    BorrowedBooks.BorrowCount -= 1;
+                    await _context.SaveChangesAsync();
+                }
                 _context.OrderDetails.Add(orderdetails);
                 _context.BooksUser.Add(booksUser);
             }
-            _context.SaveChanges();
+             _context.SaveChanges();
             ViewBag.CartTotal = HttpContext.Session.GetString("CartTotal");
 
             return Json(new { success = true });
@@ -144,8 +151,8 @@ public class Payment: Controller
                 };
                 var booksUser = new BooksUserModel()
                 {
-                    BookId = item.BookId,
-                    UserId = int.Parse(HttpContext.Session.GetString("CustomerID")),
+                    BookID = item.BookId,
+                    UserID = int.Parse(HttpContext.Session.GetString("CustomerID")),
                     Type = item.Type,
                     Date = currentDate
                 };

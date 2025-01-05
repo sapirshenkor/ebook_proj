@@ -11,6 +11,7 @@ public class HomePageBooksViewModel
         Genres = new List<string>();
         Authors = new List<string>();
         SiteReviews = new List<SiteReviewModel>();
+        
     }
     public IEnumerable<Books> FeaturedBooks { get; set; }
     public IEnumerable<Books> PopularBooks { get; set; }
@@ -20,5 +21,5 @@ public class HomePageBooksViewModel
     public string SearchString { get; set; }
     public string SelectedGenre { get; set; }
     public IEnumerable<SiteReviewModel> SiteReviews { get; set; }
-
+    public int TotalBooks { get; set; }
 }

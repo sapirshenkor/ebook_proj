@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EBook_Proj.Models;
 
-[PrimaryKey(nameof(BookId), nameof(UserId))]
+[PrimaryKey(nameof(BookID), nameof(UserID))]
 public class BooksUserModel
 {
     [Required]
-    public int BookId { get; set; }
+    public int BookID { get; set; }
     [Required]
-    public int UserId { get; set; }
+    public int UserID { get; set; }
     [Required]
     public string Type { get; set; }
     [Required]

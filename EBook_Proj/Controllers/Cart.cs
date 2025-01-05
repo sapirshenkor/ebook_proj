@@ -22,22 +22,36 @@ public class Cart : Controller
     }
 
     [HttpPost]
-    public IActionResult Checkout([FromBody] List<CartItemModel> cartItems)
+    public async Task <IActionResult> Checkout([FromBody] List<CartItemModel> cartItems)
     {
         try 
         {
-            // Store cart in session
-            HttpContext.Session.SetString("Cart", JsonSerializer.Serialize(cartItems));
-        
+            var allBooks = await _context.BooksUser
+                .Where(b => b.UserID == int.Parse(HttpContext.Session.GetString("CustomerID")))
+                .ToListAsync();
+            
+            var bookIDBorrow = allBooks
+                .Where(od => od.Type == "borrow")
+                .Select(od => od.BookID)
+                .ToList();
+            var borrowedBooksInCart = 0;
+            decimal sum = 0;
             // Calculate and store total
             //decimal total = cartItems.Sum(item => item.Price * item.Quantity);
-            decimal sum = 0;
             foreach (var item in cartItems)
             {
                 sum+=item.Price * item.Quantity;
+                if (item.Type == "borrow")
+                {
+                    borrowedBooksInCart++;
+                }
+            }
+            HttpContext.Session.SetString("Cart", JsonSerializer.Serialize(cartItems));
+            if (bookIDBorrow.Count >=3 && borrowedBooksInCart != 0 )
+            {
+                return Json(new { success = false, message = "You can't have more than 3 borrowed books" });
             }
             HttpContext.Session.SetString("CartTotal", sum.ToString());
-        
             return Json(new { success = true });
         }
         catch (Exception ex)
@@ -45,43 +59,5 @@ public class Cart : Controller
             return Json(new { success = false, message = ex.Message });
         }
     }
-    // {
-    //     try
-    //     {
-    //         //check if the user is loged in
-    //         if (HttpContext.Session.GetString("CustomerID") == null)
-    //         {
-    //             return RedirectToAction("Login", "User");
-    //         }
-    //         int customerId=int.Parse(HttpContext.Session.GetString("CustomerID"));
-    //         
-    //         //entering the first book from the cart to create the order id
-    //         var firstBook = new Orders
-    //         {
-    //             CustomerID = customerId,
-    //             BookID = cartItems[0].BookId,
-    //             BookPrice = (int)cartItems[0].Price,
-    //             BookType = cartItems[0].Type
-    //         };
-    //         _context.Orders.Add(firstBook);
-    //         _context.SaveChanges();
-    //         
-    //         //we wil use the same OrderID for the remaining Books
-    //         for (int i = 1; i < cartItems.Count; i++)
-    //         {
-    //             var restOrder = new Orders
-    //             {
-    //                 OrderID = firstBook.OrderID,
-    //                 CustomerID = customerId,
-    //                 BookID = cartItems[i].BookId,
-    //                 BookPrice = (int)cartItems[i].Price,
-    //                 BookType = cartItems[i].Type
-    //             };
-    //             _context.Orders.Add(restOrder);
-    //         }
-    //         _context.SaveChanges();
-    //         
-    //     }
-    // }
     
 }
