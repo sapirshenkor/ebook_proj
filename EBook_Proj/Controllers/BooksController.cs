@@ -107,7 +107,7 @@ public class BooksController: Controller
             {
                 var customerID = int.Parse(userIdString);
                 booksusers = await _context.BooksUser
-                    .Where(b => b.UserId == customerID)
+                    .Where(b => b.UserID == customerID)
                     .ToListAsync();
             }
         }
