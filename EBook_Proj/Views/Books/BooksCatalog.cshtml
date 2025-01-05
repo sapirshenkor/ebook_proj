@@ -86,13 +86,23 @@
                                                 <a asp-action="BookDetails" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
                                                 @if (book.BorrowCount > 0)
                                                 {
-                                                    <a class="btn btn-sm btn-success add-to-cart"
-                                                       data-id="@book.BookID"
-                                                       data-title="@book.Title"
-                                                       data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
-                                                       data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
-                                                       data-cover="@book.BookCover"
-                                                       data-type="borrow">Borrow</a>
+                                                    if (int.Parse(Context.Session.GetString("BorrowCount") ?? "0") < 3)
+                                                    {
+                                                        <a class="btn btn-sm btn-success add-to-cart"
+                                                           data-id="@book.BookID"
+                                                           data-title="@book.Title"
+                                                           data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                                           data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
+                                                           data-cover="@book.BookCover"
+                                                           data-type="borrow">Borrow</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-sm btn-secondary" 
+                                                                onclick="alert('You have reached the maximum number of books you can borrow.')">
+                                                            Borrow Limit Reached
+                                                        </button>
+                                                    }
                                                 }
                                                 <a class="btn btn-sm btn-primary add-to-cart" 
                                                    data-id="@book.BookID"
@@ -307,6 +317,8 @@
             }, type);
             
         }
+        
+ 
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', function() {
                 event.stopPropagation();

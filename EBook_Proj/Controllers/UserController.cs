@@ -152,7 +152,7 @@ public class UserController : Controller
                 .ToList();
             
             Console.WriteLine($"Found {bookIDBorrow.Count} borrowed books"); // Debug line
-
+            HttpContext.Session.SetString("BorrowCount", bookIDBorrow.Count.ToString());
             viewModel.OrderedBooks.OwnedBooks = await _context.Books
                 .Where(b => bookIDBuy.Contains(b.BookID))
                 .ToListAsync();

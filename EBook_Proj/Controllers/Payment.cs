@@ -68,8 +68,15 @@ public class Payment: Controller
                     BookPrice = item.Price,
                     BookType = item.Type
                 };
+                var booksUser = new BooksUserModel()
+                {
+                    BookId = item.BookId,
+                    UserId = int.Parse(HttpContext.Session.GetString("CustomerID")),
+                    Type = item.Type,
+                    Date = currentDate
+                };
                 _context.OrderDetails.Add(orderdetails);
-
+                _context.BooksUser.Add(booksUser);
             }
             _context.SaveChanges();
             ViewBag.CartTotal = HttpContext.Session.GetString("CartTotal");
@@ -135,8 +142,15 @@ public class Payment: Controller
                     BookPrice = item.Price,
                     BookType = item.Type
                 };
+                var booksUser = new BooksUserModel()
+                {
+                    BookId = item.BookId,
+                    UserId = int.Parse(HttpContext.Session.GetString("CustomerID")),
+                    Type = item.Type,
+                    Date = currentDate
+                };
                 _context.OrderDetails.Add(orderdetails);
-
+                _context.BooksUser.Add(booksUser);
             }
             _context.SaveChanges();
             ViewBag.CartTotal = HttpContext.Session.GetString("CartTotal");

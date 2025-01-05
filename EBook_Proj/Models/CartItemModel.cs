@@ -8,4 +8,5 @@ public class CartItemModel
     public string Cover { get; set; }
     public int Quantity { get; set; }
     public string Type { get; set; }
+    public int Discount { get; set; }
 }
