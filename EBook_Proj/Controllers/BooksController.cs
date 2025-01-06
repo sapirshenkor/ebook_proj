@@ -181,11 +181,18 @@ public class BooksController: Controller
         {
             return Json(new { success = false, redirect = "/User/Login" });
         }
-        var currentDate = DateTime.Now;
-        var email = HttpContext.Session.GetString("Email");
-        var bookInWaitingList =await _context.WaitingList.FirstOrDefaultAsync(w => w.BookID == id && w.UserID == int.Parse(userID));
+    
+        var bookInUser = await _context.BooksUser.FirstOrDefaultAsync(bu => bu.BookID == id && bu.UserID == int.Parse(userID));
+        if (bookInUser != null)
+        {
+            return Json(new { success = false, message = "You already own this book!" });
+        }
+
+        var bookInWaitingList = await _context.WaitingList.FirstOrDefaultAsync(w => w.BookID == id && w.UserID == int.Parse(userID));
         if (bookInWaitingList == null)
         {
+            var currentDate = DateTime.Now;
+            var email = HttpContext.Session.GetString("Email");
             var waitingList = new WaitingListModel()
             {
                 BookID = id,
@@ -197,7 +204,8 @@ public class BooksController: Controller
             await _context.SaveChangesAsync();
             return Json(new { success = true });
         }
-        return Json(new { success = false });
+    
+        return Json(new { success = false, message = "You are already in the waiting list for this book." });
     }
     
     

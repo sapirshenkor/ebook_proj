@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EBook_Proj.Models;
+using EBook_Proj.Services;
 
 
 namespace EBook_Proj.Controllers;
@@ -10,11 +11,13 @@ public class UserController : Controller
 {
     //this field holds the dataBase connection
     private readonly ApplicationDbContext _context;
+    private readonly IEmailService _emailService;
     
     //constructor = gets database context through dependency injection
-    public UserController(ApplicationDbContext context)
+    public UserController(ApplicationDbContext context, IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     public IActionResult Create()
@@ -24,7 +27,7 @@ public class UserController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create (UserModel user)
+    public async Task<IActionResult> Create(UserModel user)
     {
         if (ModelState.IsValid)
         {
@@ -36,6 +39,35 @@ public class UserController : Controller
             
             _context.Add(user);
             await _context.SaveChangesAsync();
+
+            // Send welcome email
+            try
+            {
+                string subject = "Welcome to EBook Store!";
+                string body = $@"
+                    <h2>Welcome {user.FirstName} {user.LastName}!</h2>
+                    <p>Thank you for creating an account with EBook Store.</p>
+                    <p>You can now:</p>
+                    <ul>
+                        <li>Browse our extensive collection of books</li>
+                        <li>Purchase or borrow books</li>
+                        <li>Manage your digital library</li>
+                    </ul>
+                    <p>If you have any questions, feel free to contact our support team.</p>
+                    <p>Happy reading!</p>
+                    <br>
+                    <p>Best regards,</p>
+                    <p>The EBook Store Team</p>";
+
+                await _emailService.SendEmailAsync(user.Email, subject, body, isHtml: true);
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't stop the registration process
+                // You might want to add proper logging here
+                Console.WriteLine($"Failed to send welcome email: {ex.Message}");
+            }
+
             return RedirectToAction("Index", "Home");
         }
         return View(user);

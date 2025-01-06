@@ -367,8 +367,8 @@
                     } else if(response.redirect) {
                         window.location.href = response.redirect;
                     } else {
-                        modal.querySelector('.modal-title').textContent = 'Already in Waiting List';
-                        modal.querySelector('.modal-body p').textContent = 'You are already in the waiting list for this book.';
+                        modal.querySelector('.modal-title').textContent = 'Cannot Add to Waiting List';
+                        modal.querySelector('.modal-body p').textContent = response.message;
                     }
 
                     modalInstance.show();
