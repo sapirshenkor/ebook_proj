@@ -16,11 +16,25 @@ public class BooksController: Controller
         _context = context;
     }
     // Get all books and resent them in the books catalog
-    public async Task<IActionResult> BooksCatalog(string searchString, string genre, string priceSort, string yearSort,string author, decimal? minPrice, decimal? maxPrice)
+    public async Task<IActionResult> BooksCatalog(string searchString, string genre, string priceSort, 
+        string yearSort, string author, decimal? minPrice, decimal? maxPrice, string sortOption)
     {
+        // First get the IDs of popular books (top 5 most ordered)
+        var popularBookIds = await _context.OrderDetails
+            .GroupBy(od => od.BookID)
+            .Select(group => new
+            {
+                BookID = group.Key,
+                OrderCount = group.Count()
+            })
+            .OrderByDescending(x => x.OrderCount)
+            .Take(5)
+            .Select(x => x.BookID)
+            .ToListAsync();
+
         var query = _context.Books.AsQueryable();
 
-        // Apply search filter
+        // Apply all filters to the main query
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(b => 
@@ -29,17 +43,16 @@ public class BooksController: Controller
                 b.Description.Contains(searchString));
         }
 
-        // Apply genre filter
         if (!string.IsNullOrEmpty(genre))
         {
             query = query.Where(b => b.Genre == genre);
         }
-        // Apply author filter
+
         if (!string.IsNullOrEmpty(author))
         {
-            query=query.Where(b => b.Author == author);
+            query = query.Where(b => b.Author == author);
         }
-        // Price range filter
+
         if (minPrice.HasValue)
         {
             query = query.Where(b => b.BuyingPrice >= minPrice.Value);
@@ -49,14 +62,57 @@ public class BooksController: Controller
             query = query.Where(b => b.BuyingPrice <= maxPrice.Value);
         }
 
+        IEnumerable<Books> popularBooks = new List<Books>();
+        IEnumerable<Books> otherBooks = new List<Books>();
+
+        // Get all filtered books
+        var filteredBooks = await query.ToListAsync();
+
+        if (sortOption == "popular")
+        {
+            // For popular sort, show popular books at top
+            popularBooks = filteredBooks
+                .Where(b => popularBookIds.Contains(b.BookID))
+                .OrderBy(b => popularBookIds.IndexOf(b.BookID)); // Maintain popularity order
+
+            otherBooks = filteredBooks
+                .Where(b => !popularBookIds.Contains(b.BookID));
+
+            // Apply secondary sorting to other books if needed
+            otherBooks = ApplySecondarySort(otherBooks, priceSort, yearSort);
+        }
+        else
+        {
+            // For other sorts, apply the sorting to all books
+            otherBooks = ApplySecondarySort(filteredBooks, priceSort, yearSort);
+        }
+
+        var viewModel = new HomePageBooksViewModel
+        {
+            PopularBooks = popularBooks,
+            FeaturedBooks = otherBooks,
+            PopularBookIds = popularBookIds, // Add this for consistent popular book identification
+            Genres = await _context.Books.Select(b => b.Genre).Distinct().ToListAsync(),
+            Authors = await _context.Books.Select(b => b.Author).Distinct().ToListAsync(),
+            SelectedAuthor = author,
+            SearchString = searchString,
+            SelectedGenre = genre,
+            SortOption = sortOption
+        };
+
+        return View(viewModel);
+    }
+
+    private IEnumerable<Books> ApplySecondarySort(IEnumerable<Books> books, string priceSort, string yearSort)
+    {
         // Apply price sorting
         switch (priceSort?.ToLower())
         {
             case "asc":
-                query = query.OrderBy(b => b.BuyingPrice);
+                books = books.OrderBy(b => b.BuyingPrice);
                 break;
             case "desc":
-                query = query.OrderByDescending(b => b.BuyingPrice);
+                books = books.OrderByDescending(b => b.BuyingPrice);
                 break;
         }
 
@@ -64,25 +120,16 @@ public class BooksController: Controller
         switch (yearSort?.ToLower())
         {
             case "asc":
-                query = query.OrderBy(b => b.PublicationDate);
+                books = books.OrderBy(b => b.PublicationDate);
                 break;
             case "desc":
-                query = query.OrderByDescending(b => b.PublicationDate);
+                books = books.OrderByDescending(b => b.PublicationDate);
                 break;
         }
 
-        var viewModel = new HomePageBooksViewModel
-        {
-            FeaturedBooks = await query.ToListAsync(),
-            Genres = await _context.Books.Select(b => b.Genre).Distinct().ToListAsync(),
-            Authors = await _context.Books.Select(b => b.Author).Distinct().ToListAsync(),
-            SelectedAuthor = author,
-            SearchString = searchString,
-            SelectedGenre = genre
-        };
-
-        return View(viewModel);
+        return books;
     }
+       
 
     public async Task<IActionResult> BookDetails(int id)
     {

@@ -26,23 +26,58 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // Get all books ordered by newest first, take 8 for the home page
+        // First get total books count
+        var totalBooks = await _context.Books.CountAsync();
+
+        // Get popular books from orders
+        var popularBooks = await _context.OrderDetails
+            .GroupBy(od => od.BookID)
+            .Select(group => new
+            {
+                BookID = group.Key,
+                OrderCount = group.Count()
+            })
+            .OrderByDescending(x => x.OrderCount)
+            .Join(
+                _context.Books,
+                ordered => ordered.BookID,
+                book => book.BookID,
+                (ordered, book) => book
+            )
+            .Take(4)
+            .ToListAsync();
+
+        // If we have fewer than 4 popular books, supplement with recent books
+        if (popularBooks.Count < 4)
+        {
+            var additionalBooks = await _context.Books
+                .Where(b => !popularBooks.Select(ob => ob.BookID).Contains(b.BookID))
+                .OrderByDescending(b => b.PublicationDate)
+                .Take(4 - popularBooks.Count)
+                .ToListAsync();
+    
+            popularBooks.AddRange(additionalBooks);
+        }
+
+        // Get featured books, excluding popular ones
+        var featuredBooks = await _context.Books
+            .Where(b => !popularBooks.Select(pb => pb.BookID).Contains(b.BookID))
+            .OrderByDescending(b => b.PublicationDate)
+            .Take(8)
+            .ToListAsync();
+
+        // Get site reviews
+        var siteReviews = await _context.SiteReview
+            .Include(r => r.User)
+            .ToListAsync();
+
+        // Create the view model
         var viewModel = new HomePageBooksViewModel
         {
-            TotalBooks = await _context.Books.CountAsync(), 
-            FeaturedBooks = await _context.Books
-                .OrderByDescending(b => b.PublicationDate)
-                .Take(8)
-                .ToListAsync(),
-
-            PopularBooks = await _context.Books
-                .OrderByDescending(b => b.BorrowCount)
-                .Take(4)
-                .ToListAsync(),
-            
-            SiteReviews = await _context.SiteReview
-            .Include(r => r.User)
-            .ToListAsync()
+            TotalBooks = totalBooks,
+            FeaturedBooks = featuredBooks,
+            PopularBooks = popularBooks,
+            SiteReviews = siteReviews
         };
 
         return View(viewModel);

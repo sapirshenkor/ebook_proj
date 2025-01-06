@@ -64,6 +64,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+// Configure the HTTPS request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Make sure this is present

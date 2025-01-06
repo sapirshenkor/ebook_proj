@@ -2,20 +2,21 @@
 
 <div class="bg-light py-5">
     <div class="container">
-        <div class="row justify-content-center">
+        <!-- Search Bar and Genre Section -->
+        <div class="row justify-content-center mb-4">
             <div class="col-md-8">
                 <div class="input-group">
                     <input type="text"
                            name="searchString"
                            id="searchString"
-                           class="form-control"
+                           class="form-control form-control-lg"
                            placeholder="Search for books..."
                            value="@Model.SearchString"
                            autocomplete="off">
                     <select name="genre"
                             id="genre"
-                            class="form-select"
-                            style="max-width: 150px;">
+                            class="form-select form-select-lg"
+                            style="max-width: 200px;">
                         <option value="">All Genres</option>
                         @foreach (var genre in Model.Genres)
                         {
@@ -32,12 +33,16 @@
                 </div>
             </div>
         </div>
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <div class="row">
+
+        <!-- Filters Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="row g-3">
+                    <!-- Author Filter -->
                     <div class="col-md-3">
+                        <label class="form-label">Author</label>
                         <select id="author" class="form-select">
-                            <option value="">All Author</option>
+                            <option value="">All Authors</option>
                             @foreach (var author in Model.Authors)
                             {
                                 if (author == Model.SelectedAuthor)
@@ -51,29 +56,51 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <select class="form-select" id="priceSort">
-                            <option value="">Sort by Price</option>
-                            <option value="asc">Price: Low to High</option>
-                            <option value="desc">Price: High to Low</option>
+
+                    <!-- Sort Options -->
+                    <div class="col-md-2">
+                        <label class="form-label">Sort By</label>
+                        <select class="form-select" id="sortOption">
+                            <option value="">Sort By</option>
+                            <option value="popular">Most Popular</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+
+                    <!-- Price Sort -->
+                    <div class="col-md-2">
+                        <label class="form-label">Price Sort</label>
+                        <select class="form-select" id="priceSort">
+                            <option value="">Sort by Price</option>
+                            <option value="asc">Low to High</option>
+                            <option value="desc">High to Low</option>
+                        </select>
+                    </div>
+
+                    <!-- Year Sort -->
+                    <div class="col-md-2">
+                        <label class="form-label">Year</label>
                         <select class="form-select" id="yearSort">
                             <option value="">Sort by Year</option>
                             <option value="asc">Oldest First</option>
                             <option value="desc">Newest First</option>
                         </select>
                     </div>
-                    <div class="col-md-3 ">
+
+                    <!-- Price Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">Price Range</label>
                         <div class="input-group">
                             <input type="number" class="form-control" id="minPrice" placeholder="Min $">
                             <input type="number" class="form-control" id="maxPrice" placeholder="Max $">
                         </div>
                     </div>
-                    <div class="col-md-2 ">
+                </div>
+
+                <!-- Reset Button -->
+                <div class="row mt-3">
+                    <div class="col-md-2 ms-auto">
                         <button class="btn btn-outline-secondary w-100" id="resetFilters">
-                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
                         </button>
                     </div>
                 </div>
@@ -81,5 +108,3 @@
         </div>
     </div>
 </div>
-    
-

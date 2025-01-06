@@ -22,4 +22,7 @@ public class HomePageBooksViewModel
     public string SelectedGenre { get; set; }
     public IEnumerable<SiteReviewModel> SiteReviews { get; set; }
     public int TotalBooks { get; set; }
+    public string SortOption { get; set; }
+    public List<int> PopularBookIds { get; set; }
+
 }
