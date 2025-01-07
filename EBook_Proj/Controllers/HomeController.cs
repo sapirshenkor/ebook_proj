@@ -13,13 +13,9 @@ namespace EBook_Proj.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    //this field holds the dataBase connection
     private readonly ApplicationDbContext _context;
     private readonly IEmailService _emailService;
     
-    //constructor = gets database context through dependency injection
-    
-
     public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IEmailService emailService)
     {
         _logger = logger;
@@ -58,7 +54,7 @@ public class HomeController : Controller
         try
         {
             var booksToReturn = await _context.BooksUser
-                .Where(bu => bu.Type == "borrow" && bu.Date.AddDays(25).Date >= DateTime.Now.Date).ToListAsync();
+                .Where(bu => bu.Type == "borrow" && bu.Date.AddDays(25).Date <= DateTime.Now.Date).ToListAsync();
             foreach (var bookUser in booksToReturn)
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.CustomerID == bookUser.UserID);
@@ -82,6 +78,35 @@ public class HomeController : Controller
                     <p>The EBook Store Team</p>";
 
                     await _emailService.SendEmailAsync(user.Email, subject, body, isHtml: true);
+            }
+            var booksReturn = await _context.BooksUser
+                .Where(bu => bu.Type == "borrow" && bu.Date.AddDays(30).Date == DateTime.Now.Date).ToListAsync();
+            foreach (var bookUser in booksReturn)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.CustomerID == bookUser.UserID);
+                if (user == null) continue;
+                var book = await _context.Books.FirstOrDefaultAsync(b => b.BookID == bookUser.BookID);
+                if (book == null) continue;
+                
+                
+                string subject = "Return Reminder: Your Book is Due Today!";
+                string body = $@"
+                    <h2>Hello {user.FirstName} {user.LastName}!</h2>
+                    <p>We want to inform you that the following book has been automatically returned:</p>
+                    <div style='margin: 20px; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #dc3545;'>
+                        <h3>{book.Title}</h3>
+                    </div>
+                    <p>The book was returned automatically as the period has expired.</p>
+                    <p>If you'd like to borrow this book again, please visit our library and make a new request.</p>
+                    <p>Thank you for using our service!</p>
+                    <br>
+                    <p>Best regards,</p>
+                    <p>The EBook Store Team</p>";
+
+                await _emailService.SendEmailAsync(user.Email, subject, body, isHtml: true);
+                _context.BooksUser.Remove(bookUser);
+                await _context.SaveChangesAsync();
+                book.BorrowCount = book.BorrowCount + 1;
             }
         }
         catch (Exception ex)
