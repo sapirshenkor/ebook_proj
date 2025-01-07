@@ -48,6 +48,7 @@ public class HomeController : Controller
         
         return View(viewModel);
     }
+    
 
     private async Task CheckBooksToReturn()
     {
@@ -107,6 +108,26 @@ public class HomeController : Controller
                 _context.BooksUser.Remove(bookUser);
                 await _context.SaveChangesAsync();
                 book.BorrowCount = book.BorrowCount + 1;
+                if (book.BorrowCount - 1 == 0)
+                {
+                    var allUserToNote = await _context.WaitingList.Where(w => w.BookID == book.BookID)
+                        .OrderBy(w=>w.Date).ToListAsync();
+                    for (int i = 0; i < allUserToNote.Count; i++)
+                    {
+                        var note = allUserToNote[i];
+                        var usertonote = await _context.Users.FirstOrDefaultAsync(u => u.CustomerID == note.UserID);
+                        try
+                        {
+                            await _emailService.NotifyWaitingListUsersAsync(book, usertonote);
+                            _context.WaitingList.Remove(note);
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Failed to send email to user {note.Email}: {ex.Message}");
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex)

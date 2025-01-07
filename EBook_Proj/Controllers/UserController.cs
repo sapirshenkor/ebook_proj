@@ -10,14 +10,17 @@ namespace EBook_Proj.Controllers;
 public class UserController : Controller
 {
     //this field holds the dataBase connection
+    private readonly ILogger<HomeController> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IEmailService _emailService;
     
     //constructor = gets database context through dependency injection
-    public UserController(ApplicationDbContext context, IEmailService emailService)
+    public UserController(ApplicationDbContext context, IEmailService emailService,ILogger<HomeController> logger)
     {
+        _logger = logger;
         _context = context;
         _emailService = emailService;
+        
     }
 
     public IActionResult Create()
@@ -262,15 +265,35 @@ public class UserController : Controller
 
             var book = await _context.BooksUser
                 .FirstOrDefaultAsync(b => b.BookID == id && b.UserID == userID);
-            
             if (book == null)
             {
                 return NotFound();
             }
             if (book.Type == "borrow")
             {
+                
                 var BorrowedBooks =await _context.Books.FirstOrDefaultAsync(b => b.BookID == book.BookID);
                 BorrowedBooks.BorrowCount += 1;
+                if (BorrowedBooks.BorrowCount - 1 == 0)
+                {
+                    var allUserToNote = await _context.WaitingList.Where(w => w.BookID == book.BookID)
+                        .OrderBy(w=>w.Date).ToListAsync();
+                    for (int i = 0; i < allUserToNote.Count; i++)
+                    {
+                        var note = allUserToNote[i];
+                        var usertonote = await _context.Users.FirstOrDefaultAsync(u => u.CustomerID == note.UserID);
+                        try
+                        {
+                            await _emailService.NotifyWaitingListUsersAsync(BorrowedBooks, usertonote);
+                            _context.WaitingList.Remove(note);
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Failed to send email to user {note.Email}: {ex.Message}");
+                        }
+                    }
+                }
                 await _context.SaveChangesAsync();
             }
 
