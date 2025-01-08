@@ -31,6 +31,11 @@
                                 <p id="modalBookDescription" class="text-muted"></p>
                             </div>
 
+                            <!-- Popular Book Alert -->
+                            <div id="popularBookBadge" class="alert alert-warning mb-4 d-none">
+                                <i class="fas fa-star me-2"></i>This is a popular book available for purchase only
+                            </div>
+
                             <div class="pricing">
                                 <div class="row">
                                     <div class="col-6">
@@ -41,7 +46,7 @@
                                                     data-type="buy">Add to Cart</button>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-6" id="borrowSection">
                                         <div class="price-box p-3 bg-light rounded text-center">
                                             <h6>Borrow</h6>
                                             <h4 id="modalBookBorrowPrice" class="text-success"></h4>
@@ -58,8 +63,17 @@
         </div>
     </div>
 </div>
+
 <script>
     function addToCart(bookId, title, buyPrice, borrowPrice, cover, type) {
+        const modalElement = document.getElementById('bookDetailsModal');
+        const isPopular = modalElement.dataset.isPopular === 'true';
+
+        // Prevent borrow action for popular books
+        if (isPopular && type === 'borrow') {
+            alert('This popular book is available for purchase only.');
+            return;
+        }
 
         cartService.addToCart({
             id: bookId,
@@ -69,7 +83,7 @@
             cover: cover
         }, type);
     }
-    
+
     document.querySelectorAll('.add-to-cart-modal').forEach(button => {
         button.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -86,5 +100,4 @@
             );
         });
     });
-
 </script>

@@ -38,47 +38,60 @@
                     var firstName = Context.Session.GetString("FirstName");
                     var isAdmin = Context.Session.GetString("IsAdmin") == "True";
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>@firstName
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item" asp-controller="User" asp-action="Profile">
-                                    <i class="fas fa-user-circle me-2"></i>Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" asp-controller="Order" asp-action="MyBooks">
-                                    <i class="fas fa-book me-2"></i>My Books
-                                </a>
-                            </li>
-                            @if (isAdmin)
-                            {
+                    if (isAdmin)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Admin" asp-action="AdminPage">
+                                <i class="fas fa-sign-in-alt me-1"></i>Admin Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form class="nav-link text-light" asp-controller="User" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-1"></i>@firstName
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                                        <i class="fas fa-cog me-2"></i>Admin Dashboard
+                                    <a class="dropdown-item" asp-controller="User" asp-action="Profile">
+                                        <i class="fas fa-user-circle me-2"></i>Profile
                                     </a>
                                 </li>
-                            }
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="User" asp-action="Logout" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-controller="Cart" asp-action="ShowCart">
-                            <i class="fas fa-shopping-cart me-1"></i>Cart
-                            <span class="cart-count badge bg-danger">0</span>
-                        </a>
-                    </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Order" asp-action="MyBooks">
+                                        <i class="fas fa-book me-2"></i>My Books
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="User" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Cart" asp-action="ShowCart">
+                                <i class="fas fa-shopping-cart me-1"></i>Cart
+                                <span class="cart-count badge bg-danger">0</span>
+                            </a>
+                        </li>
+                    }
                 }
                 else
                 {

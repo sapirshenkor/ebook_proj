@@ -12,10 +12,12 @@
     <h1 class="mb-4">Books Catalog</h1>
 
     <div id="booksContainer">
-        @if (Model.FeaturedBooks != null && Model.FeaturedBooks.Any())
+        @if (Model.SortOption == "popular" && Model.PopularBooks != null && Model.PopularBooks.Any())
         {
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                @foreach (var book in Model.FeaturedBooks)
+            <!-- Popular Books Section -->
+            <h3 class="mb-3">Most Popular Books</h3>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+                @foreach (var book in Model.PopularBooks)
                 {
                     <div class="col-md-1">
                         <div class="card h-100 shadow-sm">
@@ -29,7 +31,8 @@
                                  data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
                                  data-genre="@book.Genre"
                                  data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
-                                 data-cover="@book.BookCover">
+                                 data-cover="@book.BookCover"
+                                 data-is-popular="@(Model.PopularBookIds?.Contains(book.BookID).ToString().ToLower() ?? "false")">
                                 @if (!string.IsNullOrEmpty(book.BookCover))
                                 {
                                     <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title" style="height: 300px; object-fit: cover;">
@@ -61,17 +64,25 @@
                                                         Sale: $@((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
                                                     </span>
                                                 </div>
-                                                <div>
-                                                    <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
-                                                    <span class="badge bg-danger">
-                                                        Sale: $@((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
-                                                    </span>
-                                                </div>
+                                                if (!Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <div>
+                                                        <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                        <span class="badge bg-danger">
+                                                            Sale: $@((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
+                                                        </span>
+                                                    </div> 
+                                                }
+                                                
                                             }
                                             else
                                             {
                                                 <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
-                                                <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                if (!Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                }
+                                                
                                             }
                                         </div>
                                         @if (book.AgeLimit > 0)
@@ -81,10 +92,157 @@
                                             </div>
                                         }
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">Available Copies: @book.BorrowCount</small>
+                                            @if (!Model.PopularBookIds.Contains(book.BookID))
+                                            {
+                                                <small class="text-muted">Available Copies: @book.BorrowCount</small>
+                                            }
                                             <div class="btn-group">
                                                 <a asp-action="BookDetails" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
-                                                @if (book.BorrowCount > 0)
+                                                @if (Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <button class="btn btn-sm btn-secondary"
+                                                            disabled
+                                                            onclick="alert('Popular books are available for purchase only.')">
+                                                        Popular - Buy Only
+                                                    </button>
+                                                }
+                                                else if (book.BorrowCount > 0)
+                                                {
+                                                    if (int.Parse(Context.Session.GetString("BorrowCount") ?? "0") < 3)
+                                                    {
+                                                        <a class="btn btn-sm btn-success add-to-cart"
+                                                           data-id="@book.BookID"
+                                                           data-title="@book.Title"
+                                                           data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                                           data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
+                                                           data-cover="@book.BookCover"
+                                                           data-type="borrow">Borrow</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-sm btn-secondary"
+                                                                onclick="alert('You have reached the maximum number of books you can borrow.')">
+                                                            Borrow Limit Reached
+                                                        </button>
+                                                    }
+                                                }
+                                                <a class="btn btn-sm btn-primary add-to-cart"
+                                                   data-id="@book.BookID"
+                                                   data-title="@book.Title"
+                                                   data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                                   data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
+                                                   data-cover="@book.BookCover"
+                                                   data-type="buy">Buy
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.FeaturedBooks != null && Model.FeaturedBooks.Any())
+            {
+                <h3 class="mb-3">Other Books</h3>
+            }
+        }
+        @if (Model.FeaturedBooks != null && Model.FeaturedBooks.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var book in Model.FeaturedBooks)
+                {
+                    <div class="col-md-1">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card book-card hover-pointer"
+                                 data-book-details
+                                 data-id="@book.BookID"
+                                 data-title="@book.Title"
+                                 data-author="@book.Author"
+                                 data-description="@book.Description"
+                                 data-buy-price="@(book.Discount != 0 ? (book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)) : book.BuyingPrice)"
+                                 data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
+                                 data-genre="@book.Genre"
+                                 data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
+                                 data-cover="@book.BookCover"
+                                 data-is-popular="@(Model.PopularBookIds?.Contains(book.BookID).ToString().ToLower() ?? "false")">
+                                @if (!string.IsNullOrEmpty(book.BookCover))
+                                {
+                                    <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title" style="height: 300px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="text-center p-3 bg-light">
+                                        <i class="bi bi-book" style="font-size: 2rem;"></i>
+                                    </div>
+                                }
+                                <div class="card-body">
+                                    <h5 class="card-title">@book.Title</h5>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <div>Genre: @book.Genre</div>
+                                        </small>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(book.Description))
+                                    {
+                                        <p class="card-text">@(book.Description.Length > 150 ? book.Description.Substring(0, 147) + "..." : book.Description)</p>
+                                    }
+                                    <div class="d-flex flex-column">
+                                        <div class="mb-2">
+                                            @if (book.Discount != 0)
+                                            {
+                                                <div>
+                                                    <span class="badge bg-primary me-2 text-decoration-line-through">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                                    <span class="badge bg-danger">
+                                                        Sale: $@((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
+                                                    </span>
+                                                </div>
+                                                if (!Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <div>
+                                                        <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                        <span class="badge bg-danger">
+                                                            Sale: $@((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
+                                                        </span>
+                                                    </div>
+                                                }
+                                                
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
+                                                if (!Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                }
+                                                
+                                            }
+                                        </div>
+                                        @if (book.AgeLimit > 0)
+                                        {
+                                            <div class="mb-2">
+                                                <span class="badge bg-warning text-dark">Age @book.AgeLimit+</span>
+                                            </div>
+                                        }
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            @if (!Model.PopularBookIds.Contains(book.BookID))
+                                            {
+                                                <small class="text-muted">Available Copies: @book.BorrowCount</small>
+                                            }
+                                            <div class="btn-group">
+                                                <a asp-action="BookDetails" asp-route-id="@book.BookID" class="btn btn-sm btn-outline-primary">Details</a>
+                                                @if (Model.PopularBookIds.Contains(book.BookID))
+                                                {
+                                                    <button class="btn btn-sm btn-secondary"
+                                                            disabled
+                                                            onclick="alert('Popular books are available for purchase only.')">
+                                                        Popular - Buy Only
+                                                    </button>
+                                                }
+                                                
+                                                else if (book.BorrowCount > 0)
                                                 {
                                                     if (int.Parse(Context.Session.GetString("BorrowCount") ?? "0") < 3)
                                                     {
@@ -130,7 +288,7 @@
         else
         {
             <div class="alert alert-info" role="alert">
-                No books are currently available in the catalog.
+                No other books are currently available in the catalog.
             </div>
         }
     </div>
@@ -198,7 +356,8 @@
                             dataset.borrowPrice,
                             dataset.genre,
                             dataset.pubdate,
-                            dataset.cover
+                            dataset.cover,
+                            dataset.isPopular === 'true'
                         );
                     });
                 });
@@ -231,6 +390,10 @@
                 const author=$('#author').val()|| $('#authorFilter').val();
                 const minPrice = $('#minPrice').val();
                 const maxPrice = $('#maxPrice').val();
+                const sortOption = $('#sortOption').val();
+                const options = $('#options').val();
+                //const discount = $('#discount').val();
+
 
                 if (searchString === '' || searchString.length >= MIN_CHARS) {
                     let newUrl = '@Url.Action("BooksCatalog", "Books")';
@@ -243,6 +406,10 @@
                     if (author) params.append('author', author);
                     if (minPrice) params.append('minPrice', minPrice);
                     if (maxPrice) params.append('maxPrice', maxPrice);
+                    if (sortOption) params.append('sortOption', sortOption);
+                    //if (discount) params.append('discount', discount);
+                    if (options) params.append('options', options);
+
 
                     // Add any additional parameters
                     Object.keys(additionalParams).forEach(key => {
@@ -300,6 +467,17 @@
             $('#minPrice, #maxPrice').on('change', function() {
                 performSearch();
             });
+            // sortOption change handler
+            $('#sortOption').on('change', function() {
+                performSearch();
+            });
+            //discount change handler
+            //$('#discount').on('change', function() {
+                //performSearch();});
+            //option change handler
+            $('#options').on('change', function() {
+                performSearch();
+            });
 
             // Reset filters
             $('#resetFilters').click(function() {
@@ -309,6 +487,9 @@
                 $('#author').val('');
                 $('#minPrice').val('');
                 $('#maxPrice').val('');
+                $('#sortOption').val('');
+                //$('#discount').val('');
+                $('#options').val('');
                 performSearch();
             });
 
@@ -320,6 +501,9 @@
             $('#authorFilter').val(urlParams.get('author') || '');
             $('#minPrice').val(urlParams.get('minPrice') || '');
             $('#maxPrice').val(urlParams.get('maxPrice') || '');
+            $('#sortOption').val(urlParams.get('sortOption') || '');
+            //$('#discount').val(urlParams.get('discount') || '');
+            $('#options').val(urlParams.get('options') || '');
         });
 
         
@@ -377,5 +561,7 @@
                     alert('Failed to add to waiting list. Please try again.');
                 });
         }
+    
+    
     </script>
 }

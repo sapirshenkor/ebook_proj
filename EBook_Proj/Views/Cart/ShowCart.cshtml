@@ -67,9 +67,7 @@
             </div>
             <div class="col-2">
                 <div class="input-group">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(this, -1)">-</button>
-                    <input type="number" class="form-control form-control-sm text-center quantity-input" value="1" min="1" max="99">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(this, 1)">+</button>
+                    <span class="quantity-input"></span>
                 </div>
             </div>
             <div class="col-2 text-end">
@@ -113,8 +111,10 @@
                 clone.querySelector('.cart-item-image').src = item.cover;
                 clone.querySelector('.cart-item-title').textContent = item.title;
                 clone.querySelector('.cart-item-price').textContent = item.price;
+                clone.querySelector('.cart-item-type').textContent = item.type === 'buy' ? 'Purchase' : 'Borrow';
                 clone.querySelector('.quantity-input').value = item.quantity;
                 clone.querySelector('.remove-item').onclick = () => removeFromCart(item.bookId);
+                
 
                 cartContainer.appendChild(clone);
             });

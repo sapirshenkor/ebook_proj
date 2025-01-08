@@ -4,6 +4,7 @@
     var sectionTitle = ViewData["SectionTitle"] as string;
     var itemsPerSlide = ViewData["ItemsPerSlide"] as int? ?? 4;
     var books = Model.ToList();
+    var isPopularSection = sectionId == "popularBooksCarousel";
 }
 
 <section class="@(ViewData["SectionClass"] ?? "container py-5")">
@@ -29,7 +30,10 @@
                                      data-borrow-price="@(book.Discount != 0 ? (book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)) : book.BorrowPrice)"
                                      data-genre="@book.Genre"
                                      data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
-                                     data-cover="@book.BookCover">
+                                     data-cover="@book.BookCover"
+                                     data-is-popular="@isPopularSection.ToString().ToLower()"
+                                     data-original-price="@book.BuyingPrice"
+                                     data-discount="@book.Discount">
                                     @if (!string.IsNullOrEmpty(book.BookCover))
                                     {
                                         <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title">
@@ -46,20 +50,33 @@
                                             <div>
                                                 <span class="badge bg-primary me-2 text-decoration-line-through">Buy: $@book.BuyingPrice.ToString("F2")</span>
                                                 <span class="badge bg-danger">
-                                                        Sale: $@((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
-                                                    </span>
+                                                    Sale: $@((book.BuyingPrice - (book.BuyingPrice * book.Discount / 100)).ToString("F2"))
+                                                </span>
                                             </div>
-                                            <div>
-                                                <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
-                                                <span class="badge bg-danger">
+                                            @if (!isPopularSection)
+                                            {
+                                                <div>
+                                                    <span class="badge bg-success text-decoration-line-through">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                                    <span class="badge bg-danger">
                                                         Sale: $@((book.BorrowPrice - (book.BorrowPrice * book.Discount / 100)).ToString("F2"))
                                                     </span>
-                                            </div>
+                                                </div>
+                                            }
                                         }
                                         else
                                         {
                                             <span class="badge bg-primary me-2">Buy: $@book.BuyingPrice.ToString("F2")</span>
-                                            <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                            @if (!isPopularSection)
+                                            {
+                                                <span class="badge bg-success">Borrow: $@book.BorrowPrice.ToString("F2")</span>
+                                            }
+                                        }
+                                        
+                                        @if (isPopularSection)
+                                        {
+                                            <div class="mt-2">
+                                                <span class="badge bg-warning text-dark">Purchase Only - Popular Book</span>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -82,3 +99,4 @@
         }
     </div>
 </section>
+
