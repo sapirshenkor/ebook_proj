@@ -49,7 +49,7 @@
         cart.push({
             bookId: book.id,
             title: book.title,
-            price: price,
+            price: price.toFixed(2),
             cover: book.cover,
             quantity: 1,
             type: type

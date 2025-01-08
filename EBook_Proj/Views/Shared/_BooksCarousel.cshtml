@@ -31,7 +31,9 @@
                                      data-genre="@book.Genre"
                                      data-pubdate="@book.PublicationDate.ToString("dd/MM/yyyy")"
                                      data-cover="@book.BookCover"
-                                     data-is-popular="@isPopularSection.ToString().ToLower()">
+                                     data-is-popular="@isPopularSection.ToString().ToLower()"
+                                     data-original-price="@book.BuyingPrice"
+                                     data-discount="@book.Discount">
                                     @if (!string.IsNullOrEmpty(book.BookCover))
                                     {
                                         <img src="@book.BookCover" class="card-img-top book-image" alt="@book.Title">

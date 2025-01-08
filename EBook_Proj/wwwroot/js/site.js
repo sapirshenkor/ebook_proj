@@ -2,7 +2,7 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-function showBookDetails(id, title, author, description, buyPrice, borrowPrice, genre, publicationDate, coverImage, isPopular) {
+function showBookDetails(id, title, author, description, buyPrice, borrowPrice, genre, publicationDate, coverImage, isPopular, originalPrice, discount) {
     // Store book data in modal's dataset
     const modalElement = document.getElementById('bookDetailsModal');
     modalElement.dataset.id = id;
@@ -35,6 +35,22 @@ function showBookDetails(id, title, author, description, buyPrice, borrowPrice, 
         borrowSection.style.display = 'block';
         popularBadge.classList.add('d-none');
     }
+    const priceElement=document.querySelector('.cart-item-price');
+    // If there's a discount
+    if (priceElement) {
+        if (discount && discount !== '0') {
+            priceElement.innerHTML = `
+        <span class="badge bg-primary me-2 text-decoration-line-through">Buy: $${parseFloat(originalPrice).toFixed(2)}</span>
+        <span class="badge bg-danger">Sale: $${parseFloat(buyPrice).toFixed(2)}</span>
+    `;
+        }
+        // If no discount
+        else {
+            priceElement.innerHTML = `
+        <span class="badge bg-primary">$${parseFloat(buyPrice).toFixed(2)}</span>
+    `;
+        }
+    }
 
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
@@ -53,7 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.dataset.genre,
                 this.dataset.pubdate,
                 this.dataset.cover,
-                this.dataset.isPopular === 'true'
+                this.dataset.isPopular === 'true',
+                this.dataset.originalPrice,
+                this.dataset.discount
             );
         });
     });

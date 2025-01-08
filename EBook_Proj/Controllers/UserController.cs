@@ -62,6 +62,7 @@ public class UserController : Controller
                 HttpContext.Session.SetString("FirstName", user.FirstName);
                 HttpContext.Session.SetString("LastName", user.LastName); 
                 HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                HttpContext.Session.SetString("Email", user.Email);
                 return RedirectToAction("AdminPage", "Admin");
             }
             else

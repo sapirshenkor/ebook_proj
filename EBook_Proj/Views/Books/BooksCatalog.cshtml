@@ -370,6 +370,8 @@
                 const minPrice = $('#minPrice').val();
                 const maxPrice = $('#maxPrice').val();
                 const sortOption = $('#sortOption').val();
+                const options = $('#options').val();
+                //const discount = $('#discount').val();
 
 
                 if (searchString === '' || searchString.length >= MIN_CHARS) {
@@ -384,6 +386,8 @@
                     if (minPrice) params.append('minPrice', minPrice);
                     if (maxPrice) params.append('maxPrice', maxPrice);
                     if (sortOption) params.append('sortOption', sortOption);
+                    //if (discount) params.append('discount', discount);
+                    if (options) params.append('options', options);
 
 
                     // Add any additional parameters
@@ -446,6 +450,13 @@
             $('#sortOption').on('change', function() {
                 performSearch();
             });
+            //discount change handler
+            //$('#discount').on('change', function() {
+                //performSearch();});
+            //option change handler
+            $('#options').on('change', function() {
+                performSearch();
+            });
 
             // Reset filters
             $('#resetFilters').click(function() {
@@ -456,6 +467,8 @@
                 $('#minPrice').val('');
                 $('#maxPrice').val('');
                 $('#sortOption').val('');
+                //$('#discount').val('');
+                $('#options').val('');
                 performSearch();
             });
 
@@ -468,6 +481,8 @@
             $('#minPrice').val(urlParams.get('minPrice') || '');
             $('#maxPrice').val(urlParams.get('maxPrice') || '');
             $('#sortOption').val(urlParams.get('sortOption') || '');
+            //$('#discount').val(urlParams.get('discount') || '');
+            $('#options').val(urlParams.get('options') || '');
         });
 
         

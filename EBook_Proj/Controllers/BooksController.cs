@@ -17,7 +17,7 @@ public class BooksController: Controller
     }
     // Get all books and resent them in the books catalog
     public async Task<IActionResult> BooksCatalog(string searchString, string genre, string priceSort, 
-        string yearSort, string author, decimal? minPrice, decimal? maxPrice, string sortOption)
+        string yearSort, string author, decimal? minPrice, decimal? maxPrice, string sortOption,string options)
     {
         // First get the IDs of popular books (top 5 most ordered)
         var popularBookIds = await _context.OrderDetails
@@ -42,7 +42,7 @@ public class BooksController: Controller
                 b.Author.Contains(searchString) || 
                 b.Description.Contains(searchString));
         }
-
+        
         if (!string.IsNullOrEmpty(genre))
         {
             query = query.Where(b => b.Genre == genre);
@@ -79,12 +79,12 @@ public class BooksController: Controller
                 .Where(b => !popularBookIds.Contains(b.BookID));
 
             // Apply secondary sorting to other books if needed
-            otherBooks = ApplySecondarySort(otherBooks, priceSort, yearSort);
+            otherBooks = ApplySecondarySort(otherBooks, priceSort, yearSort,options,popularBookIds);
         }
         else
         {
             // For other sorts, apply the sorting to all books
-            otherBooks = ApplySecondarySort(filteredBooks, priceSort, yearSort);
+            otherBooks = ApplySecondarySort(filteredBooks, priceSort, yearSort,options,popularBookIds);
         }
 
         var viewModel = new HomePageBooksViewModel
@@ -103,7 +103,7 @@ public class BooksController: Controller
         return View(viewModel);
     }
 
-    private IEnumerable<Books> ApplySecondarySort(IEnumerable<Books> books, string priceSort, string yearSort)
+    private IEnumerable<Books> ApplySecondarySort(IEnumerable<Books> books, string priceSort, string yearSort,string options,List<int> popularbookIds)
     {
         // Apply price sorting
         switch (priceSort?.ToLower())
@@ -124,6 +124,19 @@ public class BooksController: Controller
                 break;
             case "desc":
                 books = books.OrderByDescending(b => b.PublicationDate);
+                break;
+        }
+
+        switch (options)
+        {
+            case "OnSale":
+                books=books.Where(b => b.Discount > 0);
+                break;
+            case "ForBorrow":
+                books=books.Where(b => !popularbookIds.Contains(b.BookID));
+                break;
+            case "ForBuying":
+                books = books.ToList();
                 break;
         }
 
