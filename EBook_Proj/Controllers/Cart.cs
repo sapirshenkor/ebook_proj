@@ -29,12 +29,13 @@ public class Cart : Controller
             var allBooks = await _context.BooksUser
                 .Where(b => b.UserID == int.Parse(HttpContext.Session.GetString("CustomerID")))
                 .ToListAsync();
-            
+                
             var bookIDBorrow = allBooks
                 .Where(od => od.Type == "borrow")
                 .Select(od => od.BookID)
                 .ToList();
             var borrowedBooksInCart = 0;
+            var ownedBooks = 0;
             decimal sum = 0;
             // Calculate and store total
             //decimal total = cartItems.Sum(item => item.Price * item.Quantity);
@@ -45,11 +46,21 @@ public class Cart : Controller
                 {
                     borrowedBooksInCart++;
                 }
+
+                if (allBooks.Exists(b => b.BookID == item.BookId))
+                {
+                    ownedBooks++;
+                }
             }
             HttpContext.Session.SetString("Cart", JsonSerializer.Serialize(cartItems));
             if (bookIDBorrow.Count >=3 && borrowedBooksInCart != 0 )
             {
                 return Json(new { success = false, message = "You can't have more than 3 borrowed books" });
+            }
+
+            if (ownedBooks != 0)
+            {
+                return Json(new { success = false, message = "You can't purchase book you already have" });
             }
             HttpContext.Session.SetString("CartTotal", sum.ToString());
             return Json(new { success = true });
