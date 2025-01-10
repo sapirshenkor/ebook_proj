@@ -125,6 +125,12 @@
                         </td>
                         <td>
                             <div>Discount: @book.Discount%</div>
+                            @if (book.Discount > 0)
+                            {
+                                <div class="small text-muted">
+                                    Expires: @book.DiscountDate.ToString("dd/MM/yyyy")
+                                </div>
+                            }
                         </td>
                         <td>
                             <div class="btn-group" role="group">
@@ -259,6 +265,8 @@
     <script>
         $(document).ready(function() {
             // Form submission handler
+            const errorAlertHtml = `<div id="errorAlert" class="alert alert-danger mt-3 d-none"></div>`;
+            $('#addBookForm').prepend(errorAlertHtml);
             $('#addBookForm').on('submit', function(e) {
                 e.preventDefault();
                 const bookId = $('#BookID').val();
@@ -269,12 +277,15 @@
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
-                        $('#addBookModal').modal('hide');
-                        window.location.reload();
+                        if (response.success) {
+                            $('#addBookModal').modal('hide');
+                            window.location.reload();
+                        } else {
+                            alert('Error saving the book. Please try again.');
+                        }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Error:', error);
-                        alert('There was an error saving the book. Please try again.');
+                    error: function() {
+                        alert('Error saving the book. Please try again.');
                     }
                 });
             });

@@ -31,6 +31,14 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        //Check for Discount
+        var books = await _context.Books.Where(b => b.DiscountDate.Date == DateTime.Now.AddDays(7).Date).ToListAsync();
+        foreach (var book in books)
+        {
+            book.DiscountDate = DateTime.MinValue;
+            book.Discount = 0;
+            await _context.SaveChangesAsync();
+        }
         await CheckBooksToReturn();
         // Get all books ordered by newest first, take 8 for the home page
         // First get total books count

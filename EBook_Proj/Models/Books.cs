@@ -63,5 +63,6 @@ namespace EBook_Proj.Models
         public string BookCover { get; set; }
         
         public int Discount { get; set; }
+        public DateTime DiscountDate { get; set; }
     }
 }
