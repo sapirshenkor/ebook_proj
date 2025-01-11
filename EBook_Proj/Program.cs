@@ -2,7 +2,8 @@
 using EBook_Proj.DATA;
 using Microsoft.EntityFrameworkCore;
 using EBook_Proj.Services; // Add this for EmailService
-using EBook_Proj.Models;   // Add this for EmailSettings
+using EBook_Proj.Models;
+using Microsoft.AspNetCore.Identity; // Add this for EmailSettings
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddControllersWithViews();
 // Database configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPasswordHasher<UserModel>, PasswordHasher<UserModel>>();
 
 // Email Service Configuration - Add these lines
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));

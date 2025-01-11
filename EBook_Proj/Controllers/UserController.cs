@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EBook_Proj.Models;
 using EBook_Proj.Services;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace EBook_Proj.Controllers;
@@ -13,13 +14,15 @@ public class UserController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IEmailService _emailService;
-    
+    private readonly IPasswordHasher<UserModel> _passwordHasher;
+
     //constructor = gets database context through dependency injection
-    public UserController(ApplicationDbContext context, IEmailService emailService,ILogger<HomeController> logger)
+    public UserController(ApplicationDbContext context, IEmailService emailService,ILogger<HomeController> logger, IPasswordHasher<UserModel> passwordHasher)
     {
         _logger = logger;
         _context = context;
         _emailService = emailService;
+        _passwordHasher = passwordHasher;
         
     }
 
@@ -39,7 +42,11 @@ public class UserController : Controller
                 ModelState.AddModelError("Email", "Email already taken");
                 return View(user);
             }
-            
+
+            // Hash the password before saving
+            string originalPassword = user.Password;
+            user.Password = _passwordHasher.HashPassword(user, originalPassword);
+        
             _context.Add(user);
             await _context.SaveChangesAsync();
 
@@ -48,26 +55,25 @@ public class UserController : Controller
             {
                 string subject = "Welcome to EBook Store!";
                 string body = $@"
-                    <h2>Welcome {user.FirstName} {user.LastName}!</h2>
-                    <p>Thank you for creating an account with EBook Store.</p>
-                    <p>You can now:</p>
-                    <ul>
-                        <li>Browse our extensive collection of books</li>
-                        <li>Purchase or borrow books</li>
-                        <li>Manage your digital library</li>
-                    </ul>
-                    <p>If you have any questions, feel free to contact our support team.</p>
-                    <p>Happy reading!</p>
-                    <br>
-                    <p>Best regards,</p>
-                    <p>The EBook Store Team</p>";
+                <h2>Welcome {user.FirstName} {user.LastName}!</h2>
+                <p>Thank you for creating an account with EBook Store.</p>
+                <p>You can now:</p>
+                <ul>
+                    <li>Browse our extensive collection of books</li>
+                    <li>Purchase or borrow books</li>
+                    <li>Manage your digital library</li>
+                </ul>
+                <p>If you have any questions, feel free to contact our support team.</p>
+                <p>Happy reading!</p>
+                <br>
+                <p>Best regards,</p>
+                <p>The EBook Store Team</p>";
 
                 await _emailService.SendEmailAsync(user.Email, subject, body, isHtml: true);
             }
             catch (Exception ex)
             {
                 // Log the error but don't stop the registration process
-                // You might want to add proper logging here
                 Console.WriteLine($"Failed to send welcome email: {ex.Message}");
             }
 
@@ -87,30 +93,36 @@ public class UserController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u=>u.Email == login.Email && u.Password == login.Password);
-            if (user == null)
+            // First find user by email only
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email);
+        
+            if (user != null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
-            }
-            else if (user.IsAdmin == true)
-            {
-                HttpContext.Session.SetString("FirstName", user.FirstName);
-                HttpContext.Session.SetString("LastName", user.LastName); 
-                HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-                HttpContext.Session.SetString("Email", user.Email);
-                return RedirectToAction("AdminPage", "Admin");
-            }
-            else
-            {
-                HttpContext.Session.SetString("FirstName", user.FirstName);
-                HttpContext.Session.SetString("LastName", user.LastName);
-                HttpContext.Session.SetString("Email", user.Email);
-                HttpContext.Session.SetString("CustomerID", user.CustomerID.ToString());
-                HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-
-                return RedirectToAction("UserPage", "User");
-            }
+                if (user.IsAdmin)
+                {
+                    HttpContext.Session.SetString("FirstName", user.FirstName);
+                    HttpContext.Session.SetString("LastName", user.LastName); 
+                    HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                    HttpContext.Session.SetString("Email", user.Email);
+                    return RedirectToAction("AdminPage", "Admin");
+                }
+                // Verify the password
+                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, login.Password);
             
+                if (result == PasswordVerificationResult.Success)
+                {
+                    // Password is correct, set session variables
+                    HttpContext.Session.SetString("FirstName", user.FirstName);
+                    HttpContext.Session.SetString("LastName", user.LastName);
+                    HttpContext.Session.SetString("Email", user.Email);
+                    HttpContext.Session.SetString("CustomerID", user.CustomerID.ToString());
+                    HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                    return RedirectToAction("UserPage", "User");
+                }
+            }
+        
+            // If we get here, either user wasn't found or password was wrong
+            ModelState.AddModelError("", "Invalid email or password");
         }
         return View();
     }

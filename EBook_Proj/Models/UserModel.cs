@@ -16,6 +16,7 @@ public class UserModel
     [Required(ErrorMessage = "Please Enter Password")]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 
         ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
+    [StringLength(100)]
     public string Password { get; set; }
     public bool IsAdmin { get; set; }
 }

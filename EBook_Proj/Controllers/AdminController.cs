@@ -226,4 +226,27 @@ public class AdminController : Controller
     {
         return _context.Books.Any(e => e.BookID == id);
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> DeleteReview(int RevID)
+    {
+        try
+        {
+            var review = await _context.SiteReview.FindAsync(RevID);
+            if (review == null)
+            {
+                return Json(new { success = false, message = "Review not found" });
+            }
+
+            _context.SiteReview.Remove(review);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
 }
