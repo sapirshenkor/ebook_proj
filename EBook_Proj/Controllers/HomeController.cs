@@ -32,7 +32,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         //Check for Discount
-        var books = await _context.Books.Where(b => b.DiscountDate.Date == DateTime.Now.AddDays(7).Date).ToListAsync();
+        var books = await _context.Books.Where(b => b.DiscountDate.Date == DateTime.Now.Date).ToListAsync();
         foreach (var book in books)
         {
             book.DiscountDate = DateTime.MinValue;

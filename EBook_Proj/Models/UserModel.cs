@@ -19,4 +19,7 @@ public class UserModel
     [StringLength(100)]
     public string Password { get; set; }
     public bool IsAdmin { get; set; }
+    public string? TemporaryPassword { get; set; }
+
+    public DateTime? TemporaryPasswordExpiration { get; set; }
 }

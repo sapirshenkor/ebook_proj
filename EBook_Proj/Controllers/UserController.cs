@@ -45,7 +45,8 @@ public class UserController : Controller
 
             // Hash the password before saving
             string originalPassword = user.Password;
-            user.Password = _passwordHasher.HashPassword(user, originalPassword);
+            user.Password = PasswordHelper.HashWithSha256(originalPassword);
+
         
             _context.Add(user);
             await _context.SaveChangesAsync();
@@ -107,9 +108,9 @@ public class UserController : Controller
                     return RedirectToAction("AdminPage", "Admin");
                 }
                 // Verify the password
-                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, login.Password);
+                string hashedInput = PasswordHelper.HashWithSha256(login.Password);
             
-                if (result == PasswordVerificationResult.Success)
+                if (user.Password == hashedInput)
                 {
                     // Password is correct, set session variables
                     HttpContext.Session.SetString("FirstName", user.FirstName);
@@ -331,4 +332,83 @@ public class UserController : Controller
         return View();
     }
     
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+        if (user != null)
+        {
+            // יצירת סיסמה זמנית
+            string tempPassword = Path.GetRandomFileName().Replace(".", "").Substring(0, 6);
+            user.TemporaryPassword = tempPassword;
+            user.TemporaryPasswordExpiration = DateTime.UtcNow.AddMinutes(15); // תוקף ל-15 דקות
+            await _context.SaveChangesAsync();
+
+            // שליחת מייל
+            try
+            {
+                string subject = "Your Temporary Password for EBook Store";
+                string body = $@"
+                <h2>Hello {user.FirstName} {user.LastName},</h2>
+                <p>We received a request to reset your password.</p>
+                <p>Your temporary password is:</p>
+                <h3 style='color: #2c3e50;'>{tempPassword}</h3>
+                <p>This password is valid for 15 minutes only.</p>
+                <p>Please go to the Reset Password page and enter this temporary password along with your new password.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>The EBook Store Team</p>";
+
+                await _emailService.SendEmailAsync(user.Email, subject, body, isHtml: true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send password reset email: {ex.Message}");
+            }
+        }
+
+        TempData["Message"] = "If the email exists, a temporary password has been sent.";
+        return RedirectToAction("ResetPassword");
+    }
+    [HttpGet]
+    public IActionResult ResetPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+
+        if (user == null ||
+            user.TemporaryPassword != model.TemporaryPassword ||
+            (user.TemporaryPasswordExpiration.HasValue && user.TemporaryPasswordExpiration < DateTime.UtcNow))
+        {
+            ModelState.AddModelError("", "Invalid email or temporary password.");
+            return View(model);
+        }
+
+        user.Password = PasswordHelper.HashWithSha256(model.NewPassword);
+        user.TemporaryPassword = null;
+        user.TemporaryPasswordExpiration = null;
+        _context.SaveChanges();
+
+        TempData["Message"] = "Password successfully reset.";
+        return RedirectToAction("Login");
+    }
+
+
 }
