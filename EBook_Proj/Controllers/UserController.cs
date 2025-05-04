@@ -95,31 +95,40 @@ public class UserController : Controller
         if (ModelState.IsValid)
         {
             // First find user by email only
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email);
-        
+            // var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email);
+             var query = $"SELECT * FROM Users WHERE Email = '{login.Email}' AND Password = '{login.Password}'";
+             var user = await _context.Users
+                 .FromSqlRaw(query)
+                 .FirstOrDefaultAsync();
             if (user != null)
             {
-                if (user.IsAdmin)
-                {
-                    HttpContext.Session.SetString("FirstName", user.FirstName);
-                    HttpContext.Session.SetString("LastName", user.LastName); 
-                    HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-                    HttpContext.Session.SetString("Email", user.Email);
-                    return RedirectToAction("AdminPage", "Admin");
-                }
-                // Verify the password
-                string hashedInput = PasswordHelper.HashWithSha256(login.Password);
-            
-                if (user.Password == hashedInput)
-                {
-                    // Password is correct, set session variables
-                    HttpContext.Session.SetString("FirstName", user.FirstName);
-                    HttpContext.Session.SetString("LastName", user.LastName);
-                    HttpContext.Session.SetString("Email", user.Email);
-                    HttpContext.Session.SetString("CustomerID", user.CustomerID.ToString());
-                    HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
-                    return RedirectToAction("UserPage", "User");
-                }
+                // string hashedInput = PasswordHelper.HashWithSha256(login.Password);
+                // if (user.IsAdmin && user.Password == hashedInput)
+                // {
+                //     HttpContext.Session.SetString("FirstName", user.FirstName);
+                //     HttpContext.Session.SetString("LastName", user.LastName); 
+                //     HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                //     HttpContext.Session.SetString("Email", user.Email);
+                //     return RedirectToAction("AdminPage", "Admin");
+                // }
+                //
+                //
+                //
+                // if (user.Password == hashedInput)
+                // {
+                //     // Password is correct, set session variables
+                //     HttpContext.Session.SetString("FirstName", user.FirstName);
+                //     HttpContext.Session.SetString("LastName", user.LastName);
+                //     HttpContext.Session.SetString("Email", user.Email);
+                //     HttpContext.Session.SetString("CustomerID", user.CustomerID.ToString());
+                //     HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                //     return RedirectToAction("UserPage", "User");
+                // }
+                HttpContext.Session.SetString("FirstName", user.FirstName);
+                HttpContext.Session.SetString("LastName", user.LastName); 
+                HttpContext.Session.SetString("IsAdmin", user.IsAdmin.ToString());
+                HttpContext.Session.SetString("Email", user.Email);
+                return RedirectToAction("AdminPage", "Admin");
             }
         
             // If we get here, either user wasn't found or password was wrong

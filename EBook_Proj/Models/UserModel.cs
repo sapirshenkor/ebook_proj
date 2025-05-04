@@ -22,4 +22,17 @@ public class UserModel
     public string? TemporaryPassword { get; set; }
 
     public DateTime? TemporaryPasswordExpiration { get; set; }
+    [Display(Name = "Credit Card Number")]
+    [StringLength(29)]
+    public string? credit_card_number { get; set; }   // note the ?
+
+    [Display(Name = "Valid Thru (MM/YY)")]
+    [RegularExpression(@"^(0[1-9]|1[0-2])\/\d{2}$",
+        ErrorMessage = "Format must be MM/YY")]
+    public string? valid_date { get; set; }          // ?
+
+    [Display(Name = "CVC")]
+    [RegularExpression(@"^\d{3,4}$",
+        ErrorMessage = "CVC must be 3–4 digits")]
+    public string? CVC { get; set; }
 }

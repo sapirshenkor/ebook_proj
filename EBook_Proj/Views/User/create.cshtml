@@ -48,6 +48,27 @@
                             </div>
                         </div>
 
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input asp-for="credit_card_number" class="form-control" placeholder="Credit Card Number" />
+                                <span asp-validation-for="credit_card_number" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input asp-for="valid_date" class="form-control" placeholder="MM/YY" />
+                                <span asp-validation-for="valid_date" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input asp-for="CVC" class="form-control" placeholder="CVC" />
+                                <span asp-validation-for="CVC" class="text-danger small"></span>
+                            </div>
+                        </div>
+
                         <div class="d-grid gap-2 mb-4">
                             <button asp-action="Create" asp-controller="User" type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
                                 Create Account <i class="bi bi-arrow-right ms-2"></i>

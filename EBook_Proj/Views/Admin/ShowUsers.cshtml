@@ -19,6 +19,10 @@
                         <th scope="col">Name</th>
                         <th scope="col">Email</th>
                         <th scope="col">Status</th>
+                        <!-- new columns -->
+                        <th scope="col">Credit&nbsp;Card&nbsp;#</th>
+                        <th scope="col">Valid&nbsp;Thru</th>
+                        <th scope="col">CVC</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -38,6 +42,9 @@
                                     <span class="badge bg-secondary">User</span>
                                 }
                             </td>
+                            <td>@user.credit_card_number</td>
+                            <td>@user.valid_date</td>
+                            <td>@user.CVC</td>
                         </tr>
                     }
                     </tbody>
